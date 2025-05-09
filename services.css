@@ -24,7 +24,7 @@ h2:after {
     left: 0;
     bottom: 0;
     height: 4px;
-    width: 180px;
+    width: 100%;
     background: linear-gradient(to right, #5a3e20, #2D7C7C);
     border-radius: 2px;
 }
@@ -608,7 +608,7 @@ section:nth-child(even) {
     }
 
     h2:after {
-        width: 150px;
+        width: 100%;
     }
 
     .text-center h2:after {
@@ -644,7 +644,7 @@ section:nth-child(even) {
     }
 
     h2:after {
-        width: 120px;
+        width: 100%;
     }
 
     .text-center h2:after {
