@@ -4,15 +4,18 @@
   <meta charset="UTF-8">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
   <link rel="stylesheet" href="landing.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <title>Become a tasker</title>
 </head>
 <body>
 
+<button onclick="toTop()" id="toTopBtn" title="Go to top"> <i class="bi bi-arrow-up-circle"></i> </button>
+
 <section class="navigation-bar">
   <div class="container">
     <header class="d-flex flex-wrap justify-content-center py-3 mb-0">
-      <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+      <a href="index.php" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
         <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
         <span class="fs-3">Task<span class="buddy">Buddy</span></span>
       </a>
@@ -20,8 +23,8 @@
       <ul class="nav nav-pills">
         <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
         <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
-        <li class="nav-item"><a href="signIn.html" class="nav-link">Sign In</a></li>
-        <li class="nav-item"><a href="#" class="nav-link" aria-current="page">Become a Tasker</a></li>
+        <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
+        <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Become a Tasker</a></li>
       </ul>
     </header>
   </div>
@@ -41,7 +44,7 @@
         <h1 class="hero-title"> Be your own boss </h1>
         <h4> get paid for your skills, your hustle your rules!</h4>
 
-        <a href="#" class="btn btn-primary btn-lg" style="margin-top: 20px"> Become a Tasker</a>
+        <a href="signUp.php" class="btn btn-primary btn-lg" style="margin-top: 20px">Join TaskBuddy</a>
 
 
       </div>
@@ -286,5 +289,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous"></script>
+<script src="sharedScripts.js"></script>
+
 </body>
 </html>
