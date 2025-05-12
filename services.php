@@ -1,29 +1,24 @@
 <?php
-// Initialize variables to track database connection status
 $db_connected = false;
 $db_error_message = "";
 $categoriesResult = null;
 $taskersResult = null;
 
-// Function to safely escape output
+session_start();
+
 function h($string) {
     return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
 }
 
-// Try to connect to the database with proper error handling
 try {
-    // Set a shorter timeout to prevent long page loading when DB server is down
     $db = @new mysqli("localhost", "root", "", "taskbuddy");
 
-    // Check for connection errors
     if ($db->connect_error) {
         throw new Exception("Unable to connect to the database. Please try again later.");
     }
 
-    // Connection successful - get categories and taskers
     $db_connected = true;
 
-    // Get all categories
     $categoriesQuery = "SELECT * FROM categories ORDER BY display_order ASC";
     $categoriesResult = $db->query($categoriesQuery);
 
@@ -31,10 +26,10 @@ try {
         throw new Exception("Error loading categories: " . $db->error);
     }
 
-    // Get all taskers with their category details
     $taskersQuery = "
         SELECT 
             t.tasker_id,
+            t.user_id,
             u.first_name,
             u.last_name,
             u.profile_image,
@@ -53,21 +48,19 @@ try {
         ORDER BY 
             t.average_rating DESC
     ";
+
     $taskersResult = $db->query($taskersQuery);
 
     if (!$taskersResult) {
         throw new Exception("Error loading taskers: " . $db->error);
     }
 
-    // Close connection
     $db->close();
 
 } catch (Exception $e) {
-    // Capture the error message
     $db_connected = false;
     $db_error_message = $e->getMessage();
 
-    // Log error for administrators (optional)
     error_log("Database Error: " . $db_error_message);
 }
 ?>
@@ -92,15 +85,20 @@ try {
 <section class="navigation-bar">
     <div class="container">
         <header class="d-flex flex-wrap justify-content-center py-3 mb-0">
-            <a href="index.html" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+            <a href="index.php" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
                 <span class="fs-3">Task<span class="buddy">Buddy</span></span>
             </a>
 
             <ul class="nav nav-pills">
                 <li class="nav-item"><a href="services.php" class="nav-link active">Services</a></li>
-                <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
-                <li class="nav-item"><a href="signIn.html" class="nav-link">Sign In</a></li>
-                <li class="nav-item"><a href="#" class="nav-link">Become a Tasker</a></li>
+                <?php if (!isset($_SESSION['user_id'])): ?>
+                    <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
+                    <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
+                    <li class="nav-item"><a href="BecomeATasker.html" class="nav-link">Become a Tasker</a></li>
+                <?php else: ?>
+                    <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
+                <?php endif; ?>
             </ul>
         </header>
     </div>
@@ -144,7 +142,7 @@ try {
                             </div>
                         <?php endif; ?>
                     </div>
-                    <a href="index.html" class="btn btn-primary mt-3">Return to Home Page</a>
+                    <a href="index.php" class="btn btn-primary mt-3">Return to Home Page</a>
                 </div>
             </div>
         </div>
@@ -199,25 +197,27 @@ try {
                 <?php if ($taskersResult && $taskersResult->num_rows > 0): ?>
                     <?php while($tasker = $taskersResult->fetch_assoc()): ?>
                         <div class="tasker-card" data-service="<?= h($tasker['category_name']) ?>">
-                            <div class="card shadow-sm h-100">
-                                <!-- Feature image comes from the category table -->
-                                <img src="<?= h($tasker['feature_image']) ?>" alt="<?= h($tasker['category_name']) ?> Service" class="card-img-top">
-                                <div class="card-body">
-                                    <div class="avatar-container">
-                                        <img src="<?= h($tasker['profile_image']) ?>" class="avatar" alt="<?= h($tasker['first_name']) ?>'s Profile">
-                                        <div class="rating-badge">
-                                            <i class="fas fa-star"></i> <?= h(number_format($tasker['average_rating'], 1)) ?>
+                            <a href="TaskerTemplate.php?id=<?= h($tasker['user_id']) ?>" class="card-link">
+                                <div class="card shadow-sm h-100">
+                                    <!-- Feature image comes from the category table -->
+                                    <img src="<?= h($tasker['feature_image']) ?>" alt="<?= h($tasker['category_name']) ?> Service" class="card-img-top">
+                                    <div class="card-body">
+                                        <div class="avatar-container">
+                                            <img src="<?= h($tasker['profile_image']) ?>" class="avatar" alt="<?= h($tasker['first_name']) ?>'s Profile">
+                                            <div class="rating-badge">
+                                                <i class="fas fa-star"></i> <?= h(number_format($tasker['average_rating'], 1)) ?>
+                                            </div>
+                                        </div>
+                                        <h5 class="card-title"><?= h($tasker['first_name']) ?> <?= h($tasker['last_name']) ?></h5>
+                                        <div class="service-tag"><?= h($tasker['category_name']) ?></div>
+                                        <p class="card-text"><?= h($tasker['service_description']) ?></p>
+                                        <div class="price-info">
+                                            <div class="price">$<?= h(number_format($tasker['hourly_rate'], 2)) ?> <span>/hour</span></div>
+                                            <a href="TaskerTemplate.php?id=<?= h($tasker['user_id']) ?>" class="btn btn-primary book-now">View Profile</a>
                                         </div>
                                     </div>
-                                    <h5 class="card-title"><?= h($tasker['first_name']) ?> <?= h($tasker['last_name']) ?></h5>
-                                    <div class="service-tag"><?= h($tasker['category_name']) ?></div>
-                                    <p class="card-text"><?= h($tasker['service_description']) ?></p>
-                                    <div class="price-info">
-                                        <div class="price">$<?= h(number_format($tasker['hourly_rate'], 2)) ?> <span>/hour</span></div>
-                                        <a href="booking.php?tasker_id=<?= h($tasker['tasker_id']) ?>" class="btn btn-primary book-now">Book Now</a>
-                                    </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                     <?php endwhile; ?>
                 <?php else: ?>

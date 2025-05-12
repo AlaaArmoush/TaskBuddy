@@ -802,3 +802,30 @@ footer .border-top {
 #toTopBtn i {
     line-height: 50px;
 }
+
+.card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+}
+
+.card-link:hover {
+    color: inherit;
+}
+
+.tasker-card .card {
+    transition: all 0.3s ease;
+}
+
+.tasker-card .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(45, 124, 124, 0.2) !important;
+}
+
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin: 0 auto;
+}
