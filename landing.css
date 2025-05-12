@@ -862,7 +862,7 @@ footer .border-top {
     height: 50px;
     text-align: center;
     cursor: pointer;
-    font-size: 25px;
+    font-size: 20px;
     box-shadow: 0 4px 12px rgba(90, 62, 32, 0.3);
     transition: all 0.3s ease;
 }

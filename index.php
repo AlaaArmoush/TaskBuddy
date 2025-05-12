@@ -1,3 +1,11 @@
+<?php
+// Start the session at the beginning of your files
+session_start();
+
+// Check if user is logged in
+$isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +15,7 @@
     <link rel="stylesheet" href="landing.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taskbuddy</title>
+    <title>TaskBuddy</title>
     <style>
        
     </style>
@@ -16,25 +24,32 @@
 
     <button onclick="toTop()" id="toTopBtn" title="Go to top"> <i class="bi bi-arrow-up-circle"></i> </button>
 
-    <section class="navigation-bar">
-      <div class="container">
-        <header class="d-flex flex-wrap justify-content-center py-3 mb-0">
-          <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-            <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
-            <span class="fs-3">Task<span class="buddy">Buddy</span></span>
-          </a>
 
-          <ul class="nav nav-pills">
-            <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
-            <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
-            <li class="nav-item"><a href="signIn.html" class="nav-link">Sign In</a></li>
-            <li class="nav-item"><a href="#" class="nav-link" aria-current="page">Become a Tasker</a></li>
-          </ul>
-        </header>
-    </div>
-    <div class="border-container">
-        <div class="border-line"></div>
-    </div>
+    <section class="navigation-bar">
+        <div class="container">
+            <header class="d-flex flex-wrap justify-content-center py-3 mb-0">
+                <a href="index.html" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
+                    <span class="fs-3">Task<span class="buddy">Buddy</span></span>
+                </a>
+
+                <ul class="nav nav-pills">
+                    <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
+
+                    <?php if ($isLoggedIn): ?>
+                    <li class="nav-item"><a href="logout.php" class="nav-link">Log Out</a></li>
+                    <?php else: ?>
+                    <!-- Show these links when user is NOT logged in -->
+                    <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
+                    <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
+                    <li class="nav-item"><a href="BecomeATasker.html" class="nav-link" aria-current="page">Become a Tasker</a></li>
+                    <?php endif; ?>
+                </ul>
+            </header>
+        </div>
+        <div class="border-container">
+            <div class="border-line"></div>
+        </div>
     </section>
 
     <section class="hero-section">
@@ -43,8 +58,8 @@
             <div class="col-md-6">
               <h1 class="hero-title">Help Is Just a Click Away.</h1>
               <p class="hero-description">Book reliable taskers for everything you need, from home projects to personal errands. Get it done quickly and professionally.</p>
-              <a href="#" class="btn btn-primary btn-lg">Book a Tasker</a>
-              <a href="#" class="btn btn-primary btn-lg">Become a Tasker</a>
+              <a href="services.php" class="btn btn-primary btn-lg">Book a Tasker</a>
+              <a href="signUp.php" class="btn btn-primary btn-lg">Become a Tasker</a>
             </div>
             <div class="col-md-6">
               <img src="./images/hero_landing.jpg" alt="Hero Image" class="img-fluid hero-image">
@@ -181,7 +196,7 @@
             
       
             
-            <a href="#" class="btn btn-light btn-lg px-5 py-3 mt-4 fw-bold">
+            <a href="services.php" class="btn btn-light btn-lg px-5 py-3 mt-4 fw-bold">
               Book a Tasker Now
               <i class="fas fa-arrow-right ms-2"></i>
             </a>
@@ -255,7 +270,7 @@
                 </div>
                 <div>
                   <br>
-                  <a href="#" class="btn btn-primary btn-lg">Become a Tasker</a>
+                  <a href="signUp.php" class="btn btn-primary btn-lg">Become a Tasker</a>
                 </div>
               </div>
             </div>
