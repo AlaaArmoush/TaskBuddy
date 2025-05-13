@@ -1,9 +1,38 @@
 <?php
-// Start the session at the beginning of your files
 session_start();
+
+// Include notification helper
+require_once 'notifications_helper.php';
+
+// Initialize notification counter
+$notification_count = 0;
 
 // Check if user is logged in
 $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+
+// Ensure database is connected
+try {
+    $db = new mysqli("localhost", "root", "", "taskbuddy");
+    $db_connected = true;
+
+    if ($db->connect_error) {
+        throw new Exception("Connection failed: " . $db->connect_error);
+    }
+
+    if ($isLoggedIn) {
+        $user_id = $_SESSION['user_id'];
+
+        // Get notification count based on user type
+        if (isset($_SESSION['is_tasker']) && $_SESSION['is_tasker'] == 1) {
+            $notification_count = getUnreadNotificationCount($db, $user_id, 'tasker');
+        } else {
+            $notification_count = getUnreadNotificationCount($db, $user_id, 'client');
+        }
+    }
+} catch (Exception $e) {
+    $db_connected = false;
+    error_log("Database error: " . $e->getMessage());
+}
 ?>
 
 <!DOCTYPE html>
@@ -26,7 +55,7 @@ $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
     <section class="navigation-bar">
         <div class="container">
             <header class="d-flex flex-wrap justify-content-center py-3 mb-0">
-                <a href="index.html" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                <a href="index.php" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
                     <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
                     <span class="fs-3">Task<span class="buddy">Buddy</span></span>
                 </a>
@@ -35,13 +64,23 @@ $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
                     <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
 
                     <?php if ($isLoggedIn): ?>
-                        <li class="nav-item"><a href="#" class="nav-link">Tasks Updates & Status</a></li>
+                        <li class="nav-item">
+                            <a href="task_status.php" class="nav-link position-relative">
+                                Tasks Updates & Status
+                                <?php if (isset($notification_count) && $notification_count > 0): ?>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        <?php echo $notification_count; ?>
+                                        <span class="visually-hidden">unread notifications</span>
+                                    </span>
+                                <?php endif; ?>
+                            </a>
+                        </li>
                         <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
                     <?php else: ?>
-                    <!-- Show these links when user is NOT logged in -->
-                    <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
-                    <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
-                    <li class="nav-item"><a href="BecomeATasker.html" class="nav-link" aria-current="page">Become a Tasker</a></li>
+                        <!-- Show these links when user is NOT logged in -->
+                        <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
+                        <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
+                        <li class="nav-item"><a href="BecomeATasker.html" class="nav-link" aria-current="page">Become a Tasker</a></li>
                     <?php endif; ?>
                 </ul>
             </header>
@@ -58,7 +97,7 @@ $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
               <h1 class="hero-title">Help Is Just a Click Away.</h1>
               <p class="hero-description">Book reliable taskers for everything you need, from home projects to personal errands. Get it done quickly and professionally.</p>
               <a href="services.php" class="btn btn-primary btn-lg">Book a Tasker</a>
-              <a href="signUp.php" class="btn btn-primary btn-lg">Become a Tasker</a>
+              <a href="BecomeATasker.html" class="btn btn-primary btn-lg">Become a Tasker</a>
             </div>
             <div class="col-md-6">
               <img src="./images/hero_landing.jpg" alt="Hero Image" class="img-fluid hero-image">
@@ -107,8 +146,8 @@ $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
   </section>
 
   <section class="social-proof" >
-    <div class="container my-5">
-      <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center border">
+    <div class="container my-5 border">
+      <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center ">
         <div class="col-lg-7 p-3 p-lg-5 pt-lg-3">
           <h2 class="display-5 fw-bold lh-1 text-body-emphasis">Building a community of reliable local helpers and satisfied customers.</h2>
           <ul>
@@ -212,7 +251,7 @@ $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
           <div class="offset-xl-1 col-xl-4 col-lg-6 d-none d-lg-block">
             <!--img-->
             <div class="position-relative">
-              <img src="images/become-a-tasker.jpg" alt=" img" class="img-fluid w-100 rounded-4 become-tasker">
+              <img src="images/become-a-tasker.webp" alt=" img" class="img-fluid w-100 rounded-4 become-tasker">
             </div>
           </div>
           <div class="col-xl-6 col-lg-5 offset-lg-1 offset-xl-1">
@@ -269,7 +308,7 @@ $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
                 </div>
                 <div>
                   <br>
-                  <a href="signUp.php" class="btn btn-primary btn-lg">Become a Tasker</a>
+                  <a href="BecomeATasker.html" class="btn btn-primary btn-lg">Become a Tasker</a>
                 </div>
               </div>
             </div>

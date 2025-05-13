@@ -3,7 +3,7 @@ body {
     font-size: large;
     color: #333;
     line-height: 1.6;
-    background-color: #fdfbf8;
+    background-color: white;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -187,12 +187,12 @@ h2:after {
 
 /* Section general styling */
 section {
-    padding: 5rem 0; /* Slightly increased padding */
+    padding: 5rem 0;
     position: relative;
 }
 
 section:nth-child(even) {
-    background-color: #f7f3ed; /* Subtle background for every other section */
+    background-color: white;
 }
 
 .container {
@@ -360,7 +360,7 @@ img {
 }
 
 .social-proof .my-5 {
-    border: none !important;
+    border: 1px solid #d9c5a9 !important;
     border-radius: 20px;
     box-shadow: 0 20px 40px rgba(45, 124, 124, 0.1); /* Teal shadow */
     transition: all 0.35s ease;
@@ -440,7 +440,7 @@ img {
     right: -150px;
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, rgba(255, 128, 53, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+    background: white;
     border-radius: 50%;
 }
 
@@ -634,6 +634,9 @@ input:focus, select:focus, textarea:focus {
 }
 
 .become-tasker {
+    width: 115% !important;
+    max-width: none !important;
+
     border-radius: 1.5rem;
     box-shadow: 1.2rem 1.2rem 0 rgba(45, 124, 124, 0.7); /* Teal shadow */
     transition: all 0.4s ease;

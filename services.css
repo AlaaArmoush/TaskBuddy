@@ -3,7 +3,7 @@ body {
     font-size: large;
     color: #333;
     line-height: 1.6;
-    background-color: #fdfbf8;
+    background-color: white;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -106,6 +106,7 @@ h2:after {
     font-weight: 700;
 }
 
+
 .navigation-bar {
     position: sticky;
     top: 0;
@@ -192,7 +193,7 @@ section {
 }
 
 section:nth-child(even) {
-    background-color: #f7f3ed;
+    background-color: white;
 }
 
 .container {
@@ -447,7 +448,7 @@ section:nth-child(even) {
 /* TASKER CARDS SECTION */
 .cards-section {
     padding: 4rem 0;
-    background-color: #fdfbf8;
+    background-color: white;
 }
 
 .cards-container {
