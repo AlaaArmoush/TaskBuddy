@@ -35,7 +35,8 @@ $isLoggedIn = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
                     <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
 
                     <?php if ($isLoggedIn): ?>
-                    <li class="nav-item"><a href="logout.php" class="nav-link">Log Out</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link">Tasks Updates & Status</a></li>
+                        <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
                     <?php else: ?>
                     <!-- Show these links when user is NOT logged in -->
                     <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>

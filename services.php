@@ -97,6 +97,7 @@ try {
                     <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
                     <li class="nav-item"><a href="BecomeATasker.html" class="nav-link">Become a Tasker</a></li>
                 <?php else: ?>
+                    <li class="nav-item"><a href="#" class="nav-link">Tasks Updates & Status</a></li>
                     <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
                 <?php endif; ?>
             </ul>
