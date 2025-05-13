@@ -6,13 +6,14 @@ body {
     font-size: large;
     color: #333;
     line-height: 1.6;
-    background-color: #fdfbf8;
+    background-color: white;
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #5a3e20;
 }
+
 
 .navigation-bar {
     position: sticky;
@@ -22,6 +23,7 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
 }
+
 
 .navigation-bar.scrolled {
     background-color: rgba(255, 255, 255, 0.96);
@@ -69,6 +71,31 @@ h1, h2, h3, h4, h5, h6 {
     color: #ffffff !important;
     box-shadow: 0 5px 15px rgba(90, 62, 32, 0.3); /* Brown shadow */
 }
+
+.nav-notification {
+    position: relative;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;  /* Move up a bit more */
+    right: -8px; /* Move to the right */
+    z-index: 1001; /* Ensure it appears above other elements */
+    transform: none; /* Remove the translation */
+    font-size: 0.65rem; /* Make the font a bit smaller */
+    padding: 0.25rem 0.4rem; /* Smaller padding */
+}
+
+/* If the badge gets hidden by the navigation bar */
+.navigation-bar {
+    overflow: visible !important; /* Ensure elements can overflow the navbar */
+}
+
+/* Give some padding to the nav items for better spacing */
+.nav-pills .nav-link {
+    padding-right: 1.8rem; /* Add a bit more padding on the right side for the notification badge */
+}
+
 /* Tasker Profile Header */
 .tasker-header .avatar-container {
     position: relative;
@@ -408,3 +435,4 @@ footer .nav-link:hover {
     border-radius: 10px;
     display: none;
 }
+

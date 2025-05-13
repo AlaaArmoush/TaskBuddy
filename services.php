@@ -6,6 +6,12 @@ $taskersResult = null;
 
 session_start();
 
+// Include notification helper
+require_once 'notifications_helper.php';
+
+// Initialize notification counter
+$notification_count = 0;
+
 function h($string) {
     return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
 }
@@ -18,6 +24,18 @@ try {
     }
 
     $db_connected = true;
+
+    // Get notification count if user is logged in
+    if (isset($_SESSION['user_id'])) {
+        $user_id = $_SESSION['user_id'];
+
+        // Get notification count based on user type
+        if (isset($_SESSION['is_tasker']) && $_SESSION['is_tasker'] == 1) {
+            $notification_count = getUnreadNotificationCount($db, $user_id, 'tasker');
+        } else {
+            $notification_count = getUnreadNotificationCount($db, $user_id, 'client');
+        }
+    }
 
     $categoriesQuery = "SELECT * FROM categories ORDER BY display_order ASC";
     $categoriesResult = $db->query($categoriesQuery);
@@ -55,16 +73,12 @@ try {
         throw new Exception("Error loading taskers: " . $db->error);
     }
 
-    $db->close();
-
 } catch (Exception $e) {
     $db_connected = false;
     $db_error_message = $e->getMessage();
-
     error_log("Database Error: " . $db_error_message);
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -97,6 +111,15 @@ try {
                     <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
                     <li class="nav-item"><a href="BecomeATasker.html" class="nav-link">Become a Tasker</a></li>
                 <?php else: ?>
+                    <a href="task_status.php" class="nav-link position-relative">
+                        Tasks Updates & Status
+                        <?php if (isset($notification_count) && $notification_count > 0): ?>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        <?php echo $notification_count; ?>
+                                        <span class="visually-hidden">unread notifications</span>
+                                    </span>
+                        <?php endif; ?>
+                    </a>
                     <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
                 <?php endif; ?>
             </ul>

@@ -1,6 +1,15 @@
 <?php
 session_start();
 
+$homeLink = 'index.php';
+if (isset($_SESSION['user_id'], $_SESSION['is_tasker']) && $_SESSION['is_tasker'] == 1) {
+    // Redirect taskers to their own profile template, passing their user_id
+    $homeLink = 'TaskerTemplate.php?id=' . intval($_SESSION['user_id']);
+}
+
+// Include notification helper
+require_once 'notifications_helper.php';
+
 // Database connection with error handling
 $db_connected = false;
 $db_error_message = "";
@@ -10,8 +19,25 @@ try {
         throw new Exception("Connection failed: " . $db->connect_error);
     }
     $db_connected = true;
+
+    // Initialize notification counter
+    $notification_count = 0;
+
+    // If user is logged in, count unread notifications
+    if (isset($_SESSION['user_id'])) {
+        $user_id = $_SESSION['user_id'];
+
+        // Get notification count based on user type
+        if (isset($_SESSION['is_tasker']) && $_SESSION['is_tasker'] == 1) {
+            $notification_count = getUnreadNotificationCount($db, $user_id, 'tasker');
+        } else {
+            $notification_count = getUnreadNotificationCount($db, $user_id, 'client');
+        }
+    }
+
 } catch (Exception $e) {
     $db_error_message = $e->getMessage();
+    error_log("Database Error: " . $db_error_message);
 }
 
 // Function to safely escape output
@@ -277,9 +303,6 @@ if ($db_connected && $tasker_id) {
         header("Location: services.php");
         exit;
     }
-
-    // Close the database connection
-    $db->close();
 }
 
 // Function to generate star rating HTML
@@ -344,24 +367,36 @@ function timeAgo($datetime) {
 <section class="navigation-bar">
     <div class="container">
         <header class="d-flex flex-wrap justify-content-center py-3 mb-0">
-            <a href="index.php" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+            <a href="<?php echo htmlspecialchars($homeLink, ENT_QUOTES, 'UTF-8'); ?>"
+               class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
                 <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
                 <span class="fs-3">Task<span class="buddy">Buddy</span></span>
             </a>
-
             <ul class="nav nav-pills">
-                <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
                 <?php if (!isset($_SESSION['user_id'])): ?>
+                    <a href="services.php" class="nav-link">Services</a>
                     <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
                     <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
+
                 <?php else: ?>
                     <?php if (isset($_SESSION['is_tasker']) && $_SESSION['is_tasker']): ?>
-                        <li class="nav-item"><a href="#" class="nav-link">Requests</a></li>
+                        <li class="nav-item nav-notification">
+                            <a href="tasker_requests.php" class="nav-link">
+                                Requests
+                            </a>
+                            <?php if ($notification_count > 0): ?>
+                                <span class="badge rounded-pill bg-danger notification-badge">
+                <?php echo $notification_count; ?>
+                <span class="visually-hidden">unread notifications</span>
+            </span>
+                            <?php endif; ?>
+                        </li>
                     <?php endif; ?>
+                    <a href="services.php" class="nav-link">Services</a>
                     <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
+
                 <?php endif; ?>
-            </ul>
-        </header>
+            </ul>        </header>
     </div>
     <div class="border-container">
         <div class="border-line"></div>
@@ -524,11 +559,15 @@ function timeAgo($datetime) {
                     <div class="tasker-actions mt-4">
                         <?php if ($isOwner): ?>
                             <a href="TaskerTemplate.php?id=<?php echo h($tasker_id); ?>&edit=true" class="btn btn-primary w-100 mb-3">Edit Profile</a>
-                        <?php else: ?>
-                            <button class="btn btn-primary w-100 mb-3">Book Now</button>
+                        <?php elseif (isset($_SESSION['user_id'])): ?>
+                            <a href="booking.php?tasker_id=<?php echo h($tasker_data['tasker_id']); ?>" class="btn btn-primary w-100 mb-3">Book Now</a>
                             <button class="btn btn-light w-100">Message</button>
+                        <?php else: ?>
+                            <a href="signIn.php?redirect=TaskerTemplate.php?id=<?php echo h($tasker_id); ?>" class="btn btn-primary w-100 mb-3">Sign In to Book</a>
+                            <a href="signUp.php" class="btn btn-light w-100">Sign Up</a>
                         <?php endif; ?>
                     </div>
+
                 </div>
 
                 <div class="col-md-8">
