@@ -250,6 +250,10 @@ try {
                 <?php endif; ?>
             </div>
         </div>
+
+        <div id="pagination-controls" class="text-center mt-4"></div>
+
+
     </section>
 <?php endif; ?>
 
@@ -335,123 +339,121 @@ try {
     </div>
 </footer>
 
-<!-- Scripts -->
 <script>
-    // Navbar scroll effect
-    window.addEventListener('scroll', function() {
-        const navbar = document.querySelector('.navigation-bar');
-        if (window.scrollY > 5) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
+    //  NAVBAR SCROLL EFFECT
+    window.addEventListener('scroll', () => {
+        document.querySelector('.navigation-bar')
+            .classList.toggle('scrolled', window.scrollY > 5);
     });
 
     <?php if ($db_connected): ?>
-    // Category selection - only initialize if DB is connected
-    const categoryItems = document.querySelectorAll('.category-item');
-    const taskerCards = document.querySelectorAll('.tasker-card');
+    //  CONFIG + STATE
+    const TASKERS_PER_PAGE = 12;
+    let currentPage       = 1;
 
+    const categoryItems = document.querySelectorAll('.category-item');
+    const taskerCards   = Array.from(document.querySelectorAll('.tasker-card'));
+    const paginationCtr = document.getElementById('pagination-controls');
+
+    // RENDERING FUNCTION
+    function renderCards(category) {
+        const matches = (category === 'all')
+            ? taskerCards
+            : taskerCards.filter(c => c.dataset.service === category);
+
+        taskerCards.forEach(c => c.style.display = 'none');
+
+        if (category === 'all') {
+            const totalPages = Math.ceil(matches.length / TASKERS_PER_PAGE);
+            currentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+            const start = (currentPage - 1) * TASKERS_PER_PAGE;
+            matches.slice(start, start + TASKERS_PER_PAGE)
+                .forEach(c => c.style.display = 'block');
+
+            buildPagination(totalPages);
+        } else {
+            matches.forEach(c => c.style.display = 'block');
+            paginationCtr.innerHTML = '';
+        }
+    }
+
+    //  BUILD PLAIN “1 2 3” LINKS
+    function buildPagination(totalPages) {
+        paginationCtr.innerHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+            const link = document.createElement('a');
+            link.href = '#';
+            link.textContent = i;
+            link.style.margin = '0 6px';
+            link.style.textDecoration = 'none';
+            link.style.color = (i === currentPage) ? '#333' : '#888';
+            link.style.fontWeight = (i === currentPage) ? 'bold' : 'normal';
+
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                if (currentPage === i) return;
+                currentPage = i;
+                const activeCat = document.querySelector('.category-item.active')
+                    .getAttribute('data-category');
+                renderCards(activeCat);
+                document.getElementById('tasker-cards')
+                    .scrollIntoView({ behavior: 'smooth' });
+            });
+
+            paginationCtr.appendChild(link);
+        }
+    }
+
+    //  CATEGORY CLICK HANDLER
     categoryItems.forEach(item => {
         item.addEventListener('click', function() {
-            // Remove active class from all items
-            categoryItems.forEach(cat => cat.classList.remove('active'));
-
-            // Add active class to clicked item
+            categoryItems.forEach(c => c.classList.remove('active'));
             this.classList.add('active');
 
-            // Get category data attribute
-            const category = this.getAttribute('data-category');
-
-            // Filter cards
-            if (category === 'all') {
-                taskerCards.forEach(card => {
-                    card.style.display = 'block';
-                });
-            } else {
-                taskerCards.forEach(card => {
-                    if (card.dataset.service === category) {
-                        card.style.display = 'block';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            }
+            currentPage = 1;
+            renderCards(this.getAttribute('data-category'));
         });
     });
 
-    // Category horizontal scrolling functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const categoriesContainer = document.querySelector('.categories-container');
-        const scrollLeftBtn = document.querySelector('.scroll-left');
-        const scrollRightBtn = document.querySelector('.scroll-right');
+    // INITIAL LOAD = “All”
+    document.querySelector('.category-item[data-category="all"]').click();
 
-        // Check if scrolling is needed
+
+    // CATEGORY SCROLL + KEYBOARD NAV
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.querySelector('.categories-container');
+        const leftBtn   = document.querySelector('.scroll-left');
+        const rightBtn  = document.querySelector('.scroll-right');
+
         function checkScroll() {
-            if (!categoriesContainer) return;
-
-            const isScrollable = categoriesContainer.scrollWidth > categoriesContainer.clientWidth;
-
-            // Show/hide left button based on scroll position
-            if (categoriesContainer.scrollLeft > 20) {
-                scrollLeftBtn.classList.remove('hidden');
-            } else {
-                scrollLeftBtn.classList.add('hidden');
-            }
-
-            // Show/hide right button based on if we can scroll more to the right
-            if (isScrollable &&
-                categoriesContainer.scrollLeft < (categoriesContainer.scrollWidth - categoriesContainer.clientWidth - 20)) {
-                scrollRightBtn.classList.remove('hidden');
-            } else {
-                scrollRightBtn.classList.add('hidden');
-            }
+            if (!container) return;
+            const max = container.scrollWidth - container.clientWidth - 20;
+            leftBtn .classList.toggle('hidden', container.scrollLeft <= 20);
+            rightBtn.classList.toggle('hidden', container.scrollLeft >= max);
         }
 
-        // Scroll functions
-        function scrollLeft() {
-            categoriesContainer.scrollBy({
-                left: -200,
-                behavior: 'smooth'
-            });
-        }
+        leftBtn?.addEventListener('click', () =>
+            container.scrollBy({ left: -200, behavior: 'smooth' })
+        );
+        rightBtn?.addEventListener('click', () =>
+            container.scrollBy({ left:  200, behavior: 'smooth' })
+        );
 
-        function scrollRight() {
-            categoriesContainer.scrollBy({
-                left: 200,
-                behavior: 'smooth'
-            });
-        }
+        container?.addEventListener('scroll', checkScroll);
+        window.addEventListener('resize', checkScroll);
+        setTimeout(checkScroll, 100);
 
-        // Add event listeners
-        if (scrollLeftBtn) {
-            scrollLeftBtn.addEventListener('click', scrollLeft);
-        }
-
-        if (scrollRightBtn) {
-            scrollRightBtn.addEventListener('click', scrollRight);
-        }
-
-        if (categoriesContainer) {
-            categoriesContainer.addEventListener('scroll', checkScroll);
-            // Also check on resize
-            window.addEventListener('resize', checkScroll);
-            // Initial check
-            setTimeout(checkScroll, 100); // Small delay to ensure content is fully loaded
-        }
-
-        // Allow keyboard navigation for accessibility
-        document.addEventListener('keydown', function(e) {
-            if (document.activeElement && document.activeElement.classList.contains('category-item')) {
-                const items = Array.from(document.querySelectorAll('.category-item'));
-                const currentIndex = items.indexOf(document.activeElement);
-
-                if (e.key === 'ArrowRight' && currentIndex < items.length - 1) {
-                    items[currentIndex + 1].focus();
-                    e.preventDefault();
-                } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
-                    items[currentIndex - 1].focus();
-                    e.preventDefault();
+        document.addEventListener('keydown', e => {
+            const active = document.activeElement;
+            if (active?.classList.contains('category-item')) {
+                const items = Array.from(categoryItems);
+                const idx   = items.indexOf(active);
+                if (e.key === 'ArrowRight' && idx < items.length - 1) {
+                    items[idx + 1].focus(); e.preventDefault();
+                }
+                if (e.key === 'ArrowLeft' && idx > 0) {
+                    items[idx - 1].focus(); e.preventDefault();
                 }
             }
         });
@@ -459,7 +461,9 @@ try {
     <?php endif; ?>
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+        crossorigin="anonymous"></script>
 <script src="sharedScripts.js"></script>
 
 </body>
