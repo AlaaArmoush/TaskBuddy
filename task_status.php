@@ -23,6 +23,7 @@ $db_connected = false;
 $db_error_message = "";
 $bookings = [];
 $success_message = '';
+$error_message = '';
 
 try {
     $db = new mysqli("localhost", "root", "", "taskbuddy");
@@ -95,6 +96,95 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db_connected) {
 
                 $success_message = "Booking cancelled successfully.";
             }
+        }
+    }
+
+    // Process review submission
+    if (isset($_POST['submit_review'])) {
+        try {
+            $booking_id = intval($_POST['booking_id']);
+            $tasker_id = intval($_POST['tasker_id']);
+            $rating = intval($_POST['rating']);
+            $comment = trim($_POST['comment'] ?? '');
+            $client_id = $_SESSION['user_id'];
+
+            // Validate the rating
+            if ($rating < 1 || $rating > 5) {
+                throw new Exception("Rating must be between 1 and 5.");
+            }
+
+            // Start transaction
+            $db->begin_transaction();
+
+            // Insert the review
+            $insert_review = $db->prepare("INSERT INTO reviews (tasker_id, client_id, rating, comment) VALUES (?, ?, ?, ?)");
+            $insert_review->bind_param("iiis", $tasker_id, $client_id, $rating, $comment);
+
+            if (!$insert_review->execute()) {
+                throw new Exception("Failed to submit review: " . $db->error);
+            }
+
+            // Update tasker's average rating and total reviews
+            // First, get current stats
+            $tasker_query = $db->prepare("SELECT average_rating, total_reviews FROM taskers WHERE tasker_id = ?");
+            $tasker_query->bind_param("i", $tasker_id);
+            $tasker_query->execute();
+            $tasker_result = $tasker_query->get_result();
+
+            if (!$tasker_result || $tasker_result->num_rows === 0) {
+                throw new Exception("Tasker not found.");
+            }
+
+            $tasker_data = $tasker_result->fetch_assoc();
+            $current_avg = floatval($tasker_data['average_rating']);
+            $total_reviews = intval($tasker_data['total_reviews']);
+
+            // Calculate new average rating
+            $new_total = $total_reviews + 1;
+            $new_avg = (($current_avg * $total_reviews) + $rating) / $new_total;
+
+            // Update tasker stats
+            $update_tasker = $db->prepare("UPDATE taskers SET average_rating = ?, total_reviews = ? WHERE tasker_id = ?");
+            $update_tasker->bind_param("dii", $new_avg, $new_total, $tasker_id);
+
+            if (!$update_tasker->execute()) {
+                throw new Exception("Failed to update tasker rating: " . $db->error);
+            }
+
+            // Delete the booking
+            $delete_booking = $db->prepare("DELETE FROM bookings WHERE booking_id = ?");
+            $delete_booking->bind_param("i", $booking_id);
+
+            if (!$delete_booking->execute()) {
+                throw new Exception("Failed to delete booking: " . $db->error);
+            }
+
+            // Get tasker's user_id for notification
+            $tasker_user_query = $db->prepare("SELECT user_id FROM taskers WHERE tasker_id = ?");
+            $tasker_user_query->bind_param("i", $tasker_id);
+            $tasker_user_query->execute();
+            $tasker_user_result = $tasker_user_query->get_result();
+
+            if ($tasker_user_result && $tasker_user_result->num_rows > 0) {
+                $tasker_user_id = $tasker_user_result->fetch_assoc()['user_id'];
+
+                // Create notification for tasker about the review
+                $notification_message = "A client has left you a " . $rating . "-star review.";
+                $notification_stmt = $db->prepare("INSERT INTO notifications (user_id, message, related_to, related_id) 
+                                                 VALUES (?, ?, 'review', ?)");
+                $review_id = $db->insert_id; // Get the ID of the inserted review
+                $notification_stmt->bind_param("isi", $tasker_user_id, $notification_message, $review_id);
+                $notification_stmt->execute();
+            }
+
+            // Commit transaction
+            $db->commit();
+
+            $success_message = "Thank you! Your review has been submitted successfully.";
+        } catch (Exception $e) {
+            // Roll back transaction on error
+            $db->rollback();
+            $error_message = $e->getMessage();
         }
     }
 }
@@ -194,7 +284,6 @@ function getStatusDisplayText($status) {
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -335,6 +424,133 @@ function getStatusDisplayText($status) {
         #toTopBtn:hover {
             background-color: #5a3e20;
         }
+
+        /* Rating stars styling */
+        .rating-stars {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+        }
+
+        .rating-stars input {
+            display: none;
+        }
+
+        .rating-stars label {
+            cursor: pointer;
+            font-size: 30px;
+            color: #ccc;
+            padding: 0 5px;
+        }
+
+        .rating-stars label:hover,
+        .rating-stars label:hover ~ label,
+        .rating-stars input:checked ~ label {
+            color: #FFD700;
+        }
+
+        .review-btn {
+            background-color: #8b6b4c;
+            color: white;
+            border: none;
+        }
+
+        .review-btn:hover {
+            background-color: #5a3e20;
+            color: white;
+        }
+
+        .rating-error {
+            color: #dc3545;
+            font-size: 14px;
+            display: none;
+            margin-top: 5px;
+        }
+
+        /* Custom modal overlay styling */
+        .custom-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            overflow: auto;
+            cursor: default;
+        }
+
+        .custom-modal-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100%;
+            padding: 40px 0;
+        }
+
+        .custom-modal-content {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            cursor: default;
+            animation: fadeInUp 0.3s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .custom-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .custom-modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .custom-modal-close {
+            border: none;
+            background: transparent;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+            color: #6c757d;
+        }
+
+        .custom-modal-close:hover {
+            color: #000;
+        }
+
+        .custom-modal-body {
+            padding: 20px;
+        }
+
+        .custom-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+        }
     </style>
 </head>
 <body>
@@ -351,6 +567,8 @@ function getStatusDisplayText($status) {
 
             <ul class="nav nav-pills">
                 <li class="nav-item"><a href="task_status.php" class="nav-link active">Tasks Updates & Status</a></li>
+                <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
+
                 <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
             </ul>
         </header>
@@ -377,6 +595,12 @@ function getStatusDisplayText($status) {
         <?php if (!empty($success_message)): ?>
             <div class="alert alert-success" role="alert">
                 <?php echo h($success_message); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($error_message)): ?>
+            <div class="alert alert-danger" role="alert">
+                <?php echo h($error_message); ?>
             </div>
         <?php endif; ?>
 
@@ -415,6 +639,13 @@ function getStatusDisplayText($status) {
                             </form>
                             <a href="TaskerTemplate.php?id=<?php echo h($booking['tasker_user_id']); ?>" class="btn btn-primary">View Tasker Profile</a>
                         </div>
+                    <?php elseif ($booking['status'] === 'completed'): ?>
+                        <div class="task-actions">
+                            <button type="button" class="btn review-btn" onclick="openCustomModal(<?php echo h($booking['booking_id']); ?>)">
+                                <i class="bi bi-star-fill me-1"></i> Leave a Review
+                            </button>
+                            <a href="TaskerTemplate.php?id=<?php echo h($booking['tasker_user_id']); ?>" class="btn btn-primary">View Tasker Profile</a>
+                        </div>
                     <?php else: ?>
                         <div class="task-actions">
                             <a href="TaskerTemplate.php?id=<?php echo h($booking['tasker_user_id']); ?>" class="btn btn-primary">View Tasker Profile</a>
@@ -433,6 +664,115 @@ function getStatusDisplayText($status) {
     <?php endif; ?>
 </div>
 
+<!-- Custom Modal for Reviews -->
+<?php foreach($bookings as $booking): ?>
+    <?php if ($booking['status'] === 'completed'): ?>
+        <div id="customModal<?php echo h($booking['booking_id']); ?>" class="custom-modal-overlay">
+            <div class="custom-modal-container">
+                <div class="custom-modal-content">
+                    <div class="custom-modal-header">
+                        <h5 class="custom-modal-title">Review <?php echo h($booking['first_name'] . ' ' . $booking['last_name']); ?></h5>
+                        <button type="button" class="custom-modal-close" onclick="closeCustomModal(<?php echo h($booking['booking_id']); ?>)">×</button>
+                    </div>
+                    <form method="post" id="reviewForm<?php echo h($booking['booking_id']); ?>" onsubmit="return validateCustomRating(<?php echo h($booking['booking_id']); ?>)">
+                        <div class="custom-modal-body">
+                            <input type="hidden" name="booking_id" value="<?php echo h($booking['booking_id']); ?>">
+                            <input type="hidden" name="tasker_id" value="<?php echo h($booking['tasker_id']); ?>">
+
+                            <div class="mb-4 text-center">
+                                <h6>How would you rate <?php echo h($booking['first_name']); ?>'s service?</h6>
+                                <div class="rating-stars my-3">
+                                    <input type="radio" id="star5-<?php echo h($booking['booking_id']); ?>" name="rating" value="5">
+                                    <label for="star5-<?php echo h($booking['booking_id']); ?>"><i class="bi bi-star-fill"></i></label>
+
+                                    <input type="radio" id="star4-<?php echo h($booking['booking_id']); ?>" name="rating" value="4">
+                                    <label for="star4-<?php echo h($booking['booking_id']); ?>"><i class="bi bi-star-fill"></i></label>
+
+                                    <input type="radio" id="star3-<?php echo h($booking['booking_id']); ?>" name="rating" value="3">
+                                    <label for="star3-<?php echo h($booking['booking_id']); ?>"><i class="bi bi-star-fill"></i></label>
+
+                                    <input type="radio" id="star2-<?php echo h($booking['booking_id']); ?>" name="rating" value="2">
+                                    <label for="star2-<?php echo h($booking['booking_id']); ?>"><i class="bi bi-star-fill"></i></label>
+
+                                    <input type="radio" id="star1-<?php echo h($booking['booking_id']); ?>" name="rating" value="1">
+                                    <label for="star1-<?php echo h($booking['booking_id']); ?>"><i class="bi bi-star-fill"></i></label>
+                                </div>
+                                <div class="rating-error" id="ratingError<?php echo h($booking['booking_id']); ?>">Please select a rating</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="comment<?php echo h($booking['booking_id']); ?>" class="form-label">Comment (Optional)</label>
+                                <textarea class="form-control" id="comment<?php echo h($booking['booking_id']); ?>" name="comment" rows="4" placeholder="Share your experience with this tasker..."></textarea>
+                            </div>
+                        </div>
+                        <div class="custom-modal-footer">
+                            <button type="button" class="btn btn-light" onclick="closeCustomModal(<?php echo h($booking['booking_id']); ?>)">Cancel</button>
+                            <button type="submit" name="submit_review" class="btn btn-primary">Submit Review</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php endforeach; ?>
+
+<script>
+    // Functions to control custom modal
+    function openCustomModal(bookingId) {
+        const modal = document.getElementById(`customModal${bookingId}`);
+        if (modal) {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeCustomModal(bookingId) {
+        const modal = document.getElementById(`customModal${bookingId}`);
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Validate rating selection before form submission
+    function validateCustomRating(bookingId) {
+        const ratingInputs = document.querySelectorAll(`input[name="rating"]:checked`);
+        const errorElement = document.getElementById(`ratingError${bookingId}`);
+
+        if (ratingInputs.length === 0) {
+            errorElement.style.display = 'block';
+            return false;
+        }
+
+        errorElement.style.display = 'none';
+        return true;
+    }
+
+    // Close modal when clicking outside the content
+    document.addEventListener('DOMContentLoaded', function() {
+        const modals = document.querySelectorAll('.custom-modal-overlay');
+
+        modals.forEach(modal => {
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    const bookingId = modal.id.replace('customModal', '');
+                    closeCustomModal(bookingId);
+                }
+            });
+        });
+
+        // Handle escape key to close modal
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const visibleModal = document.querySelector('.custom-modal-overlay[style="display: block;"]');
+                if (visibleModal) {
+                    const bookingId = visibleModal.id.replace('customModal', '');
+                    closeCustomModal(bookingId);
+                }
+            }
+        });
+    });
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
 <script src="sharedScripts.js"></script>

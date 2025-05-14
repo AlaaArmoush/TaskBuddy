@@ -285,7 +285,9 @@ if ($db_connected && $tasker_id) {
             JOIN 
                 users u ON r.client_id = u.user_id
             WHERE 
-                r.tasker_id = ?
+                r.tasker_id = ? AND 
+                r.comment IS NOT NULL AND 
+                TRIM(r.comment) != ''
             ORDER BY 
                 r.created_at DESC
         ";
@@ -392,7 +394,6 @@ function timeAgo($datetime) {
                             <?php endif; ?>
                         </li>
                     <?php endif; ?>
-                    <a href="services.php" class="nav-link">Services</a>
                     <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
 
                 <?php endif; ?>
