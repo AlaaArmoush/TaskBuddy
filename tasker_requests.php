@@ -24,6 +24,7 @@ $db_error_message = "";
 $pending_requests = [];
 $ongoing_tasks = [];
 $completed_tasks = [];
+$reviews = [];
 $success_message = '';
 $error_message = '';
 
@@ -83,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db_connected) {
                     $notification_message = "Your booking has been rejected by the tasker.";
                 } elseif ($action === 'complete') {
                     $status = 'completed';
-                    $notification_message = "Your task has been marked as completed by the tasker.";
+                    $notification_message = "Your task has been marked as completed by the tasker. Please leave a review!";
                 } else {
                     throw new Exception("Invalid action.");
                 }
@@ -165,6 +166,38 @@ if ($db_connected) {
                 } elseif ($booking['status'] === 'completed') {
                     $completed_tasks[] = $booking;
                 }
+            }
+        }
+
+        // Get recent reviews for this tasker
+        $reviews_query = "
+            SELECT 
+                r.review_id,
+                r.rating,
+                r.comment,
+                r.created_at,
+                u.first_name,
+                u.last_name,
+                u.profile_image
+            FROM 
+                reviews r
+            JOIN 
+                users u ON r.client_id = u.user_id
+            WHERE 
+                r.tasker_id = ?
+            ORDER BY 
+                r.created_at DESC
+            LIMIT 5
+        ";
+
+        $reviews_stmt = $db->prepare($reviews_query);
+        $reviews_stmt->bind_param("i", $tasker_id);
+        $reviews_stmt->execute();
+        $reviews_result = $reviews_stmt->get_result();
+
+        if ($reviews_result) {
+            while ($review = $reviews_result->fetch_assoc()) {
+                $reviews[] = $review;
             }
         }
     }
@@ -330,6 +363,59 @@ function formatDate($date) {
             background: linear-gradient(to right, #5a3e20, #2D7C7C);
             border-radius: 2px;
         }
+
+        /* Review styles */
+        .review-item {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .review-item:hover {
+            box-shadow: 0 8px 20px rgba(45, 124, 124, 0.1);
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .reviewer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+        }
+
+        .review-stars {
+            color: #FFD700;
+            margin-left: auto;
+        }
+
+        .review-date {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .review-comment {
+            color: #555;
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        .review-note {
+            background-color: #f8f9fa;
+            border-left: 4px solid #2D7C7C;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -400,6 +486,12 @@ function formatDate($date) {
                     <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed"
                             type="button" role="tab" aria-controls="completed" aria-selected="false">
                         Completed Tasks <span class="badge bg-success"><?php echo count($completed_tasks); ?></span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews"
+                            type="button" role="tab" aria-controls="reviews" aria-selected="false">
+                        My Reviews <span class="badge bg-secondary"><?php echo count($reviews); ?></span>
                     </button>
                 </li>
             </ul>
@@ -487,7 +579,7 @@ function formatDate($date) {
                                     <form method="post">
                                         <input type="hidden" name="booking_id" value="<?php echo h($task['booking_id']); ?>">
                                         <input type="hidden" name="action" value="complete">
-                                        <button type="submit" class="btn btn-primary" onclick="return confirm('Are you sure you want to mark this task as completed?')">
+                                        <button type="submit" class="btn btn-primary" onclick="return confirm('Are you sure you want to mark this task as completed? This will prompt the client to leave a review.')">
                                             Mark as Completed
                                         </button>
                                     </form>
@@ -506,6 +598,12 @@ function formatDate($date) {
                 <!-- Completed Tasks Tab -->
                 <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
                     <?php if (count($completed_tasks) > 0): ?>
+                        <div class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            Completed tasks will be removed once the client submits a review.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
                         <?php foreach($completed_tasks as $task): ?>
                             <div class="request-card">
                                 <div class="request-header">
@@ -536,6 +634,48 @@ function formatDate($date) {
                             <i class="bi bi-trophy"></i>
                             <h5>No completed tasks</h5>
                             <p>You haven't completed any tasks yet.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Reviews Tab -->
+                <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                    <?php if (count($reviews) > 0): ?>
+                        <h5 class="mb-4">Recent Reviews</h5>
+                        <?php foreach($reviews as $review): ?>
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <img src="<?php echo h($review['profile_image']); ?>" alt="Reviewer" class="reviewer-avatar">
+                                    <div>
+                                        <div class="fw-bold"><?php echo h($review['first_name'] . ' ' . $review['last_name']); ?></div>
+                                        <div class="review-date"><?php echo date('M j, Y', strtotime($review['created_at'])); ?></div>
+                                    </div>
+                                    <div class="review-stars">
+                                        <?php for ($i = 0; $i < 5; $i++): ?>
+                                            <?php if ($i < $review['rating']): ?>
+                                                <i class="bi bi-star-fill"></i>
+                                            <?php else: ?>
+                                                <i class="bi bi-star"></i>
+                                            <?php endif; ?>
+                                        <?php endfor; ?>
+                                    </div>
+                                </div>
+                                <?php if (!empty($review['comment'])): ?>
+                                    <div class="review-comment">
+                                        "<?php echo h($review['comment']); ?>"
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+
+                        <div class="review-note">
+                            <p class="mb-0"><strong>Note:</strong> Your current average rating is calculated from all your reviews. Good reviews help you get more booking requests!</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="empty-state">
+                            <i class="bi bi-star"></i>
+                            <h5>No reviews yet</h5>
+                            <p>You haven't received any reviews yet. Complete tasks to get reviews from clients.</p>
                         </div>
                     <?php endif; ?>
                 </div>

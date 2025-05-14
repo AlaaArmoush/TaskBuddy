@@ -306,7 +306,7 @@ if ($db_connected) {
                 </div>
 
                 <div class="text-center mt-5">
-                    <a href="TaskerTemplate.php?id=<?php echo h($tasker_id); ?>" class="btn btn-secondary me-2">Cancel</a>
+                    <a href="TaskerTemplate.php?id=<?php echo h($tasker_id); ?>" class="btn btn-secondary btn-lg">Cancel</a>
                     <button type="submit" class="btn btn-primary btn-lg">Submit Booking Request</button>
                 </div>
             </form>
