@@ -566,9 +566,8 @@ function getStatusDisplayText($status) {
 
 
             <ul class="nav nav-pills">
-                <li class="nav-item"><a href="task_status.php" class="nav-link active">Tasks Updates & Status</a></li>
                 <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
-
+                <li class="nav-item"><a href="task_status.php" class="nav-link active">Tasks Updates & Status</a></li>
                 <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
             </ul>
         </header>

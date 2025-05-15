@@ -3,14 +3,11 @@ session_start();
 
 $homeLink = 'index.php';
 if (isset($_SESSION['user_id'], $_SESSION['is_tasker']) && $_SESSION['is_tasker'] == 1) {
-    // Redirect taskers to their own profile template, passing their user_id
     $homeLink = 'TaskerTemplate.php?id=' . intval($_SESSION['user_id']);
 }
 
-// Include notification helper
 require_once 'notifications_helper.php';
 
-// Database connection with error handling
 $db_connected = false;
 $db_error_message = "";
 try {
@@ -350,6 +347,7 @@ function timeAgo($datetime) {
         return $years . " year" . ($years > 1 ? "s" : "") . " ago";
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -376,28 +374,38 @@ function timeAgo($datetime) {
             </a>
             <ul class="nav nav-pills">
                 <?php if (!isset($_SESSION['user_id'])): ?>
-                    <a href="services.php" class="nav-link">Services</a>
+                    <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
                     <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
                     <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
 
                 <?php else: ?>
-                    <?php if (isset($_SESSION['is_tasker']) && $_SESSION['is_tasker']): ?>
+                    <?php if (isset($_SESSION['is_tasker']) && $_SESSION['is_tasker'] == 1): ?>
+
                         <li class="nav-item nav-notification">
                             <a href="tasker_requests.php" class="nav-link">
                                 Requests
+                                <?php if ($notification_count > 0): ?>
+                                    <span class="badge rounded-pill bg-danger notification-badge">
+                            <?php echo $notification_count; ?>
+                        </span>
+                                <?php endif; ?>
                             </a>
-                            <?php if ($notification_count > 0): ?>
-                                <span class="badge rounded-pill bg-danger notification-badge">
-                <?php echo $notification_count; ?>
-                <span class="visually-hidden">unread notifications</span>
-            </span>
-                            <?php endif; ?>
                         </li>
-                    <?php endif; ?>
-                    <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
+                        <li class="nav-item"><a href="TaskerTemplate.php?id=<?php echo h($_SESSION['user_id']); ?>" class="nav-link active">My Profile</a></li>
 
+                        <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
+                    <?php else: ?>
+                        <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
+                        <li class="nav-item">
+                            <a href="task_status.php" class="nav-link position-relative">
+                                Tasks Updates &amp; Status
+                            </a>
+                        </li>
+                        <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
+                    <?php endif; ?>
                 <?php endif; ?>
-            </ul>        </header>
+            </ul>
+        </header>
     </div>
     <div class="border-container">
         <div class="border-line"></div>
@@ -542,15 +550,11 @@ function timeAgo($datetime) {
 
                     <div class="tasker-stats mt-4">
                         <div class="row text-center">
-                            <div class="col">
+                            <div class="col-md-4 offset-md-2">
                                 <h4 class="stat-number"><?php echo h(number_format($tasker_data['average_rating'], 1)); ?></h4>
                                 <p class="stat-label">Overall Rating</p>
                             </div>
-                            <div class="col">
-                                <h4 class="stat-number">98%</h4>
-                                <p class="stat-label">Completion Rate</p>
-                            </div>
-                            <div class="col">
+                            <div class="col-md-4">
                                 <h4 class="stat-number"><?php echo h($tasker_data['total_reviews']); ?></h4>
                                 <p class="stat-label">Tasks Completed</p>
                             </div>
@@ -560,9 +564,38 @@ function timeAgo($datetime) {
                     <div class="tasker-actions mt-4">
                         <?php if ($isOwner): ?>
                             <a href="TaskerTemplate.php?id=<?php echo h($tasker_id); ?>&edit=true" class="btn btn-primary w-100 mb-3">Edit Profile</a>
+
+                            <a href="tasker_inbox.php"  class="btn btn-light w-100 mb-3 position-relative">
+                                Messages
+                                <i class="fas fa-comment-dots me-2"></i>
+                                <?php
+                                if ($db_connected) {
+                                    $current_user_id = $_SESSION['user_id'];
+                                    $unread_query = "
+                                                    SELECT COUNT(*) AS unread_count
+                                                    FROM chat_messages m
+                                                    JOIN conversations c ON m.conversation_id = c.conversation_id
+                                                    WHERE m.is_read = 0
+                                                      AND m.sender_id != ?
+                                                      AND (c.user1_id = ? OR c.user2_id = ?)
+                                                  ";
+                                    $stmt = $db->prepare($unread_query);
+                                    $stmt->bind_param('iii', $current_user_id, $current_user_id, $current_user_id);
+                                    $stmt->execute();
+                                    $cnt = $stmt->get_result()->fetch_assoc()['unread_count'];
+                                    if ($cnt > 0) {
+                                        echo '<span class="position-absolute top-50 translate-middle-y badge rounded-pill bg-danger">'
+                                            . $cnt .
+                                            '</span>';
+                                    }
+                                }
+                                ?>
+                            </a>
                         <?php elseif (isset($_SESSION['user_id'])): ?>
                             <a href="booking.php?tasker_id=<?php echo h($tasker_data['tasker_id']); ?>" class="btn btn-primary w-100 mb-3">Book Now</a>
-                            <button class="btn btn-light w-100">Message</button>
+                            <button type="button" class="btn btn-light w-100" data-bs-toggle="modal" data-bs-target="#chatModal">
+                                <i class="fas fa-comment-dots me-2"></i> Message
+                            </button>
                         <?php else: ?>
                             <a href="signIn.php?redirect=TaskerTemplate.php?id=<?php echo h($tasker_id); ?>" class="btn btn-primary w-100 mb-3">Sign In to Book</a>
                             <a href="signUp.php" class="btn btn-light w-100">Sign Up</a>
@@ -741,5 +774,12 @@ function timeAgo($datetime) {
         imageModal.show();
     }
 </script>
+
+<?php
+if (isset($_SESSION['user_id']) && !$isOwner) {
+    include('simple_chat.php');
+}
+?>
+
 </body>
 </html>
