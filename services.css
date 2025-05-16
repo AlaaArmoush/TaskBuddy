@@ -261,13 +261,10 @@ section:nth-child(even) {
     border: 5px solid white;
 }
 
-
-
 /* CATEGORIES SECTION */
 .categories-section {
     padding: 2rem 0;
     background-color: #fff;
-    border-bottom: 1px solid rgba(90, 62, 32, 0.1);
 }
 
 .categories-container {

@@ -153,6 +153,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stat-label {
+    white-space: nowrap;
     color: #666;
     font-size: 0.9rem;
 }
