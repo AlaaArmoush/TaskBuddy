@@ -228,9 +228,7 @@ try {
                                         <div class="avatar-container">
                                             <img src="<?= h($tasker['profile_image']) ?>" class="avatar" alt="<?= h($tasker['first_name']) ?>'s Profile">
                                             <div class="rating-badge">
-                                                <?= $tasker['total_reviews'] == 0
-                                                    ? 'Not Rated'
-                                                    : '<i class="fas fa-star"></i> ' . h(number_format($tasker['average_rating'], 1)) ?>
+                                                <i class="fas fa-star"></i> <?= h(number_format($tasker['average_rating'], 1)) ?>
                                             </div>
                                         </div>
                                         <h5 class="card-title"><?= h($tasker['first_name']) ?> <?= h($tasker['last_name']) ?></h5>
