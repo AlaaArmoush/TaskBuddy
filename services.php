@@ -290,11 +290,10 @@ try {
                                     <div class="card-body">
                                         <div class="avatar-container">
                                             <img src="<?= h($tasker['profile_image']) ?>" class="avatar" alt="<?= h($tasker['first_name']) ?>'s Profile">
-                                            <div class="rating-badge">
-                                                <?= $tasker['total_reviews'] == 0
-                                                    ? 'Not Rated'
-                                                    : '<i class="fas fa-star"></i> ' . h(number_format($tasker['average_rating'], 1)) ?>
-                                            </div>
+                                        <div class="rating-badge">
+                                        	<i class="fas fa-star"></i> <?= h(number_format($tasker['average_rating'], 1)) ?>
+                                         	<?= $tasker['total_reviews'] == 0 ? 'Not Rated' : '<i class="fas fa-star"></i> ' . h(number_format($tasker['average_rating'], 1)) ?>
+                                        </div>
                                         </div>
                                         <h5 class="card-title"><?= h($tasker['first_name']) ?> <?= h($tasker['last_name']) ?></h5>
                                         <div class="service-tag"><?= h($tasker['category_name']) ?></div>
