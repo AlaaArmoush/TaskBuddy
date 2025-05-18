@@ -17,7 +17,7 @@ function h($string) {
 }
 
 try {
-    $db = @new mysqli("localhost", "root", "", "taskbuddy");
+    $db = new mysqli("localhost", "root", "", "taskbuddy");
 
     if ($db->connect_error) {
         throw new Exception("Unable to connect to the database. Please try again later.");
@@ -90,6 +90,69 @@ try {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="services.css">
+
+    <style>
+        /* Animation Classes - Directly in HTML to ensure they load */
+        .animate-hidden {
+            opacity: 0;
+            filter: blur(5px);
+            transform: translateX(-100px);
+            transition: all 1s ease;
+        }
+
+        .animate-show {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateX(0);
+        }
+
+        /* Right-to-left animation */
+        .animate-hidden-right {
+            opacity: 0;
+            filter: blur(5px);
+            transform: translateX(100px);
+            transition: all 1s ease;
+        }
+
+        .animate-hidden-right.animate-show {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateX(0);
+        }
+
+        /* Bottom-to-top animation */
+        .animate-hidden-bottom {
+            opacity: 0;
+            filter: blur(5px);
+            transform: translateY(50px);
+            transition: all 1s ease;
+        }
+
+        .animate-hidden-bottom.animate-show {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0);
+        }
+
+        .stagger-list .animate-hidden:nth-child(1) { transition-delay: 0ms; }
+        .stagger-list .animate-hidden:nth-child(2) { transition-delay: 100ms; }
+        .stagger-list .animate-hidden:nth-child(3) { transition-delay: 200ms; }
+        .stagger-list .animate-hidden:nth-child(4) { transition-delay: 300ms; }
+        .stagger-list .animate-hidden:nth-child(5) { transition-delay: 400ms; }
+        .stagger-list .animate-hidden:nth-child(6) { transition-delay: 500ms; }
+        .stagger-list .animate-hidden:nth-child(7) { transition-delay: 600ms; }
+        .stagger-list .animate-hidden:nth-child(8) { transition-delay: 700ms; }
+        .stagger-list .animate-hidden:nth-child(9) { transition-delay: 800ms; }
+        .stagger-list .animate-hidden:nth-child(10) { transition-delay: 900ms; }
+
+        .cards-container .animate-hidden:nth-child(1) { transition-delay: 0ms; }
+        .cards-container .animate-hidden:nth-child(2) { transition-delay: 0ms; }
+        .cards-container .animate-hidden:nth-child(3) { transition-delay: 0ms; }
+        .cards-container .animate-hidden:nth-child(4) { transition-delay: 0ms; }
+        .cards-container .animate-hidden:nth-child(5) { transition-delay: 0ms; }
+        .cards-container .animate-hidden:nth-child(6) { transition-delay: 0ms; }
+
+    </style>
 </head>
 <body>
 <button onclick="toTop()" id="toTopBtn" title="Go to top"> <i class="bi bi-arrow-up-circle"></i> </button>
@@ -134,14 +197,14 @@ try {
 <section class="hero-section">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-md-6 order-md-2">
+            <div class="col-md-6 order-md-2 animate-hidden-right">
                 <h1 class="hero-title">Discover Services Made Simple.</h1>
                 <p class="hero-description">Browse our extensive collection of skilled taskers ready to help with your projects, errands, and everyday needs.</p>
                 <div class="d-flex gap-3">
                     <a href="#tasker-cards" class="btn btn-light btn-lg">Explore Services</a>
                 </div>
             </div>
-            <div class="col-md-6 order-md-1">
+            <div class="col-md-6 order-md-1 animate-hidden">
                 <img src="./images/services_main.jpg" alt="Services Hero Image" class="img-fluid hero-image">
             </div>
         </div>
@@ -153,7 +216,7 @@ try {
     <section class="database-error py-5">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-md-8 text-center">
+                <div class="col-md-8 text-center animate-hidden-bottom">
                     <div class="alert alert-warning py-4">
                         <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
                         <h3>Temporary Service Interruption</h3>
@@ -174,17 +237,17 @@ try {
     <!-- Categories Section - Only show if database is connected -->
     <section class="categories-section">
         <div class="container">
-            <h2 class="text-center mb-4">Explore by Category</h2>
+            <h2 class="text-center mb-4 animate-hidden">Explore by Category</h2>
 
-            <div class="categories-scroll-container">
+            <div class="categories-scroll-container animate-hidden-bottom">
                 <!-- Scroll indicators -->
                 <button class="scroll-indicator scroll-left hidden">
                     <i class="fas fa-chevron-left"></i>
                 </button>
 
-                <div class="categories-container">
+                <div class="categories-container stagger-list">
                     <!-- "All Services" button - always first -->
-                    <button class="category-item text-center mx-2 active" data-category="all">
+                    <button class="category-item text-center mx-2 active animate-hidden" data-category="all">
                         <div class="category-icon">
                             <i class="fas fa-th-large"></i>
                         </div>
@@ -194,7 +257,7 @@ try {
                     <!-- Dynamic categories from database -->
                     <?php if ($categoriesResult && $categoriesResult->num_rows > 0): ?>
                         <?php while($category = $categoriesResult->fetch_assoc()): ?>
-                            <button class="category-item text-center mx-2" data-category="<?= h($category['name']) ?>">
+                            <button class="category-item text-center mx-2 animate-hidden" data-category="<?= h($category['name']) ?>">
                                 <div class="category-icon">
                                     <i class="<?= h($category['icon_class']) ?>"></i>
                                 </div>
@@ -214,12 +277,12 @@ try {
     <!-- Service/Tasker Cards Section -->
     <section id="tasker-cards" class="cards-section">
         <div class="container">
-            <h2 class="text-center mb-5">Available Taskers</h2>
+            <h2 class="text-center mb-5 animate-hidden">Available Taskers</h2>
             <div class="cards-container">
                 <!-- Dynamic tasker cards from database -->
                 <?php if ($taskersResult && $taskersResult->num_rows > 0): ?>
                     <?php while($tasker = $taskersResult->fetch_assoc()): ?>
-                        <div class="tasker-card" data-service="<?= h($tasker['category_name']) ?>">
+                        <div class="tasker-card animate-hidden" data-service="<?= h($tasker['category_name']) ?>">
                             <a href="TaskerTemplate.php?id=<?= h($tasker['user_id']) ?>" class="card-link">
                                 <div class="card shadow-sm h-100">
                                     <!-- Feature image comes from the category table -->
@@ -245,14 +308,14 @@ try {
                         </div>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <div class="col-12 text-center">
+                    <div class="col-12 text-center animate-hidden">
                         <p>No taskers available at the moment. Please check back later.</p>
                     </div>
                 <?php endif; ?>
             </div>
         </div>
 
-        <div id="pagination-controls" class="text-center mt-4"></div>
+        <div id="pagination-controls" class="text-center mt-4 animate-hidden-bottom"></div>
 
 
     </section>
@@ -262,7 +325,7 @@ try {
 <footer class="pt-lg-8 pt-5 footer bg-white">
     <div class="container mt-lg-2">
         <div class="row">
-            <div class="col-lg-4 col-md-6 col-12">
+            <div class="col-lg-4 col-md-6 col-12 animate-hidden">
                 <!-- about company -->
                 <div class="mb-4">
                     <span class="fs-3">Task<span class="buddy">Buddy</span></span>
@@ -271,7 +334,7 @@ try {
                     </div>
                 </div>
             </div>
-            <div class="offset-lg-1 col-lg-2 col-md-3 col-6">
+            <div class="offset-lg-1 col-lg-2 col-md-3 col-6 animate-hidden">
                 <div class="mb-4">
                     <!-- list -->
                     <h3 class="fw-bold mb-3">Company</h3>
@@ -284,7 +347,7 @@ try {
                     </ul>
                 </div>
             </div>
-            <div class="col-lg-2 col-md-3 col-6">
+            <div class="col-lg-2 col-md-3 col-6 animate-hidden">
                 <div class="mb-4">
                     <!-- list -->
                     <h3 class="fw-bold mb-3">Support</h3>
@@ -296,7 +359,7 @@ try {
                     </ul>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-12">
+            <div class="col-lg-3 col-md-12 animate-hidden">
                 <!-- contact info -->
                 <div class="mb-4">
                     <h3 class="fw-bold mb-3">Get in touch</h3>
@@ -379,7 +442,7 @@ try {
         }
     }
 
-    //  BUILD PLAIN “1 2 3” LINKS
+    //  BUILD PLAIN "1 2 3" LINKS
     function buildPagination(totalPages) {
         paginationCtr.innerHTML = '';
         for (let i = 1; i <= totalPages; i++) {
@@ -417,7 +480,7 @@ try {
         });
     });
 
-    // INITIAL LOAD = “All”
+    // INITIAL LOAD = "All"
     document.querySelector('.category-item[data-category="all"]').click();
 
 
@@ -466,6 +529,54 @@ try {
         integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
         crossorigin="anonymous"></script>
 <script src="sharedScripts.js"></script>
+
+<!-- Animation script using Intersection Observer -->
+<script>
+    // Wait for the DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM loaded, starting animation setup");
+
+        // Select all elements with animation classes
+        const hiddenElements = document.querySelectorAll('.animate-hidden, .animate-hidden-right, .animate-hidden-bottom');
+        console.log("Found", hiddenElements.length, "elements to animate");
+
+        // Create the Intersection Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                // If the element is intersecting with the viewport
+                if (entry.isIntersecting) {
+                    console.log("Element entering viewport:", entry.target);
+                    // Add the show class to make it visible with animation
+                    entry.target.classList.add('animate-show');
+                }
+            });
+        }, {
+            // Element is considered "visible" when 15% is in viewport
+            threshold: 0.15,
+            // Start animations slightly before elements enter viewport
+            rootMargin: "0px 0px -50px 0px"
+        });
+
+        // Observe all hidden elements
+        hiddenElements.forEach((el) => {
+            observer.observe(el);
+            console.log("Now observing:", el);
+        });
+
+        // Apply show class to elements already in view on page load
+        setTimeout(() => {
+            hiddenElements.forEach((el) => {
+                const rect = el.getBoundingClientRect();
+                const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+
+                if (rect.top <= windowHeight) {
+                    console.log("Element already in viewport, showing immediately:", el);
+                    el.classList.add('animate-show');
+                }
+            });
+        }, 100);
+    });
+</script>
 
 </body>
 </html>

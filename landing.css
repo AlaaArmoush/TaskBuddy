@@ -355,8 +355,8 @@ img {
 
 /* Social Proof */
 .social-proof {
-    padding-bottom: 5rem;
-    padding-top: 5rem;
+    padding-bottom: 0rem;
+    padding-top: 0rem;
 }
 
 .social-proof .my-5 {

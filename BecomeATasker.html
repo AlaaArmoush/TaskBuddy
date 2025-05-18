@@ -7,6 +7,58 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <title>Become a tasker</title>
+
+  <style>
+    /* Animation Classes - Directly in HTML to ensure they load */
+    .animate-hidden {
+      opacity: 0;
+      filter: blur(5px);
+      transform: translateX(-100px);
+      transition: all 1s ease;
+    }
+
+    .animate-show {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateX(0);
+    }
+
+    /* Right-to-left animation */
+    .animate-hidden-right {
+      opacity: 0;
+      filter: blur(5px);
+      transform: translateX(100px);
+      transition: all 1s ease;
+    }
+
+    .animate-hidden-right.animate-show {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateX(0);
+    }
+
+    /* Bottom-to-top animation */
+    .animate-hidden-bottom {
+      opacity: 0;
+      filter: blur(5px);
+      transform: translateY(50px);
+      transition: all 1s ease;
+    }
+
+    .animate-hidden-bottom.animate-show {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateY(0);
+    }
+
+    /* Staggered animations for lists */
+    .stagger-list .animate-hidden:nth-child(1) { transition-delay: 0ms; }
+    .stagger-list .animate-hidden:nth-child(2) { transition-delay: 200ms; }
+    .stagger-list .animate-hidden:nth-child(3) { transition-delay: 400ms; }
+    .stagger-list .animate-hidden:nth-child(4) { transition-delay: 600ms; }
+    .stagger-list .animate-hidden:nth-child(5) { transition-delay: 800ms; }
+    .stagger-list .animate-hidden:nth-child(6) { transition-delay: 1000ms; }
+  </style>
 </head>
 <body>
 
@@ -35,50 +87,37 @@
 
 <section class="hero-section">
   <div class="container">
-
     <div class="row align-items-center">
-
-
-
-      <div class = "col-md-6">
+      <div class="col-md-6 animate-hidden">
         <h1 class="hero-title"> Be your own boss </h1>
         <h4> get paid for your skills, your hustle your rules!</h4>
-
         <a href="signUp.php" class="btn btn-primary btn-lg" style="margin-top: 20px">Join TaskBuddy</a>
-
-
       </div>
-      <div class = "col-md-6">
-        <img src="./images/handyman-service-scaled.jpg" alt="Hero Image" class="img-fluid hero-image">
+      <div class="col-md-6 animate-hidden-right">
+        <img src="./images/hero_landing.jpg" alt="Hero Image" class="img-fluid hero-image">
       </div>
-
     </div>
-
   </div>
-
-
-
-
 </section>
 
 <section>
   <div class="container">
-    <div class="row">
-      <div class="col-md-4">
+    <div class="row stagger-list">
+      <div class="col-md-4 animate-hidden">
         <div class="feature">
           <h2>All on your terms</h2>
           <p>Find jobs that fit your skills and schedule.</p>
         </div>
       </div>
 
-      <div class="col-md-4">
+      <div class="col-md-4 animate-hidden">
         <div class="feature">
           <h2>Get going for free</h2>
           <p>Join for free and start earning straight away.</p>
         </div>
       </div>
 
-      <div class="col-md-4">
+      <div class="col-md-4 animate-hidden">
         <div class="feature">
           <h2>Payments on lock</h2>
           <p>Receive payment direct to your bank account when tasks are completed.</p>
@@ -86,20 +125,20 @@
       </div>
     </div>
 
-    <div class="row mt-5">
-      <div class="col-md-4">
+    <div class="row mt-5 stagger-list">
+      <div class="col-md-4 animate-hidden">
         <div class="feature">
           <h2>Skills can thrill</h2>
           <p>Put all your skills on display, from designing a logo to decluttering a home.</p>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-4 animate-hidden">
         <div class="feature">
           <h2>Flexible Hours</h2>
           <p>Work when you want, where you want</p>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-4 animate-hidden">
         <div class="feature">
           <h2>Competitive Rates</h2>
           <p>Set your own rates based on your skills</p>
@@ -111,23 +150,23 @@
 
 <section class="application-steps">
   <div class="container">
-    <h2 class="text-center mb-5">How to Become a Tasker</h2>
-    <div class="row">
-      <div class="col-md-4">
+    <h2 class="text-center mb-5 animate-hidden">How to Become a Tasker</h2>
+    <div class="row stagger-list">
+      <div class="col-md-4 animate-hidden">
         <div class="step-card">
           <div class="step-number">1</div>
           <h3>Create Your Profile</h3>
           <p>Sign up and create your professional profile highlighting your skills and experience.</p>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-4 animate-hidden">
         <div class="step-card">
           <div class="step-number">2</div>
           <h3>Verify Your Identity</h3>
           <p>Complete our verification process to ensure safety and trust in our community.</p>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-4 animate-hidden">
         <div class="step-card">
           <div class="step-number">3</div>
           <h3>Start Earning</h3>
@@ -140,27 +179,27 @@
 
 <section class="requirements-section">
   <div class="container">
-    <h2 class="text-center mb-5">Requirements to Become a Tasker</h2>
-    <div class="row">
-      <div class="col-md-6">
+    <h2 class="text-center mb-5 animate-hidden">Requirements to Become a Tasker</h2>
+    <div class="row stagger-list">
+      <div class="col-md-6 animate-hidden">
         <div class="requirement-item">
           <h4>Age Requirement</h4>
           <p>Must be at least 18 years old</p>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6 animate-hidden">
         <div class="requirement-item">
           <h4>Valid ID</h4>
           <p>Government-issued photo identification</p>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6 animate-hidden">
         <div class="requirement-item">
           <h4>Background Check</h4>
           <p>Must pass our background verification process</p>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6 animate-hidden">
         <div class="requirement-item">
           <h4>Skills & Experience</h4>
           <p>Relevant skills and experience in your chosen category</p>
@@ -170,30 +209,29 @@
   </div>
 </section>
 
-
 <section class="faq-section">
   <div class="container">
-    <h2 class="text-center mb-5">Frequently Asked Questions</h2>
-    <div class="row">
-      <div class="col-md-6">
+    <h2 class="text-center mb-5 animate-hidden">Frequently Asked Questions</h2>
+    <div class="row stagger-list">
+      <div class="col-md-6 animate-hidden">
         <div class="faq-item">
           <h4>How much can I earn?</h4>
           <p>Earnings vary based on your skills, experience, and the number of tasks you complete. Taskers typically earn between $20-$50 per hour.</p>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6 animate-hidden">
         <div class="faq-item">
           <h4>How do I get paid?</h4>
           <p>Payments are processed weekly and transferred directly to your bank account.</p>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6 animate-hidden">
         <div class="faq-item">
           <h4>What types of tasks are available?</h4>
           <p>We offer a wide range of tasks including home services, professional services, and more.</p>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6 animate-hidden">
         <div class="faq-item">
           <h4>How long does the application process take?</h4>
           <p>The application process typically takes 1-2 business days to complete.</p>
@@ -206,7 +244,7 @@
 <footer class="pt-lg-8 pt-5 footer bg-white">
   <div class="container mt-lg-2">
     <div class="row">
-      <div class="col-lg-4 col-md-6 col-12">
+      <div class="col-lg-4 col-md-6 col-12 animate-hidden">
         <!-- about company -->
         <div class="mb-4">
           <span class="fs-3">Task<span class="buddy">Buddy</span></span>
@@ -215,7 +253,7 @@
           </div>
         </div>
       </div>
-      <div class="offset-lg-1 col-lg-2 col-md-3 col-6">
+      <div class="offset-lg-1 col-lg-2 col-md-3 col-6 animate-hidden">
         <div class="mb-4">
           <!-- list -->
           <h3 class="fw-bold mb-3">Company</h3>
@@ -228,19 +266,19 @@
           </ul>
         </div>
       </div>
-      <div class="col-lg-2 col-md-3 col-6">
+      <div class="col-lg-2 col-md-3 col-6 animate-hidden">
         <div class="mb-4">
           <!-- list -->
           <h3 class="fw-bold mb-3">Support</h3>
           <ul class="list-unstyled nav nav-footer flex-column nav-x-0">
             <li><a href="#" class="nav-link">Help and Support</a></li>
             <li><a href="#" class="nav-link">Get the app</a></li>
-            <li><a href="#" class="nav-link">FAQ’s</a></li>
+            <li><a href="#" class="nav-link">FAQ's</a></li>
             <li><a href="#" class="nav-link">Tutorial</a></li>
           </ul>
         </div>
       </div>
-      <div class="col-lg-3 col-md-12">
+      <div class="col-lg-3 col-md-12 animate-hidden">
         <!-- contact info -->
         <div class="mb-4">
           <h3 class="fw-bold mb-3">Get in touch</h3>
@@ -265,15 +303,15 @@
       <div class="col-md-10 col-12">
         <div class="d-lg-flex align-items-center">
           <div class="me-4">
-                          <span>
-                              ©
-                              <span id="copyright5">
-                                  <script>
-                                      document.getElementById("copyright5").appendChild(document.createTextNode(new Date().getFullYear()));
-                                  </script>
-                              </span>
-                              TaskBuddy
-                          </span>
+            <span>
+              ©
+              <span id="copyright5">
+                <script>
+                  document.getElementById("copyright5").appendChild(document.createTextNode(new Date().getFullYear()));
+                </script>
+              </span>
+              TaskBuddy
+            </span>
           </div>
           <div>
             <nav class="nav nav-footer">
@@ -290,6 +328,54 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous"></script>
 <script src="sharedScripts.js"></script>
+
+<!-- Embedded animation JavaScript -->
+<script>
+  // Wait for the DOM to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM loaded, starting animation setup");
+
+    // Select all elements with animation classes
+    const hiddenElements = document.querySelectorAll('.animate-hidden, .animate-hidden-right, .animate-hidden-bottom');
+    console.log("Found", hiddenElements.length, "elements to animate");
+
+    // Create the Intersection Observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        // If the element is intersecting with the viewport
+        if (entry.isIntersecting) {
+          console.log("Element entering viewport:", entry.target);
+          // Add the show class to make it visible with animation
+          entry.target.classList.add('animate-show');
+        }
+      });
+    }, {
+      // Element is considered "visible" when 15% is in viewport
+      threshold: 0.15,
+      // Start animations slightly before elements enter viewport
+      rootMargin: "0px 0px -50px 0px"
+    });
+
+    // Observe all hidden elements
+    hiddenElements.forEach((el) => {
+      observer.observe(el);
+      console.log("Now observing:", el);
+    });
+
+    // Apply show class to elements already in view on page load
+    setTimeout(() => {
+      hiddenElements.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+
+        if (rect.top <= windowHeight) {
+          console.log("Element already in viewport, showing immediately:", el);
+          el.classList.add('animate-show');
+        }
+      });
+    }, 100);
+  });
+</script>
 
 </body>
 </html>
