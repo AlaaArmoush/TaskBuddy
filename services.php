@@ -145,13 +145,6 @@ try {
         .stagger-list .animate-hidden:nth-child(9) { transition-delay: 800ms; }
         .stagger-list .animate-hidden:nth-child(10) { transition-delay: 900ms; }
 
-        .cards-container .animate-hidden:nth-child(1) { transition-delay: 0ms; }
-        .cards-container .animate-hidden:nth-child(2) { transition-delay: 0ms; }
-        .cards-container .animate-hidden:nth-child(3) { transition-delay: 0ms; }
-        .cards-container .animate-hidden:nth-child(4) { transition-delay: 0ms; }
-        .cards-container .animate-hidden:nth-child(5) { transition-delay: 0ms; }
-        .cards-container .animate-hidden:nth-child(6) { transition-delay: 0ms; }
-
     </style>
 </head>
 <body>
@@ -201,7 +194,7 @@ try {
                 <h1 class="hero-title">Discover Services Made Simple.</h1>
                 <p class="hero-description">Browse our extensive collection of skilled taskers ready to help with your projects, errands, and everyday needs.</p>
                 <div class="d-flex gap-3">
-                    <a href="#tasker-cards" class="btn btn-light btn-lg">Explore Services</a>
+                    <a href="#categories-section" class="btn btn-light btn-lg">Explore Services</a>
                 </div>
             </div>
             <div class="col-md-6 order-md-1 animate-hidden">
@@ -277,12 +270,12 @@ try {
     <!-- Service/Tasker Cards Section -->
     <section id="tasker-cards" class="cards-section">
         <div class="container">
-            <h2 class="text-center mb-5 animate-hidden">Available Taskers</h2>
+            <h2 class="text-center mb-5">Available Taskers</h2>
             <div class="cards-container">
                 <!-- Dynamic tasker cards from database -->
                 <?php if ($taskersResult && $taskersResult->num_rows > 0): ?>
                     <?php while($tasker = $taskersResult->fetch_assoc()): ?>
-                        <div class="tasker-card animate-hidden" data-service="<?= h($tasker['category_name']) ?>">
+                        <div class="tasker-card" data-service="<?= h($tasker['category_name']) ?>">
                             <a href="TaskerTemplate.php?id=<?= h($tasker['user_id']) ?>" class="card-link">
                                 <div class="card shadow-sm h-100">
                                     <!-- Feature image comes from the category table -->
@@ -315,7 +308,7 @@ try {
             </div>
         </div>
 
-        <div id="pagination-controls" class="text-center mt-4 animate-hidden-bottom"></div>
+        <div id="pagination-controls" class="text-center mt-4"></div>
 
 
     </section>
@@ -575,6 +568,33 @@ try {
                 }
             });
         }, 100);
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the explore services button
+        const exploreBtn = document.querySelector('.hero-section .btn-light');
+
+        // Add click event listener
+        if (exploreBtn) {
+            exploreBtn.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default anchor behavior
+
+                // Get the categories section
+                const categoriesSection = document.querySelector('.categories-section');
+
+                if (categoriesSection) {
+                    // Scroll to categories section with a small offset from the top
+                    const yOffset = -20; // Adjust this value as needed
+                    const y = categoriesSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+                    window.scrollTo({
+                        top: y,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        }
     });
 </script>
 
