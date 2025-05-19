@@ -1,5 +1,4 @@
 <?php
-// ChatServer.php - A simplified WebSocket server without namespaces
 
 require __DIR__ . '/vendor/autoload.php';
 
