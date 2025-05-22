@@ -89,4 +89,4 @@ A web‑based platform that connects clients with skilled taskers in their area.
 
 ## 📄 License
 
-Licensed under the MIT License. See [LICENSE](LICENSE) for details.
+Licensed under the MIT License.
