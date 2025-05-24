@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'websocket_config.php';
 
 // Redirect if not logged in or not a tasker
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_tasker']) || $_SESSION['is_tasker'] != 1) {
@@ -379,6 +380,9 @@ $homeLink = 'TaskerTemplate.php?id=' . intval($_SESSION['user_id']);
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Get WebSocket URL from PHP configuration
+        const WEBSOCKET_URL = '<?php echo getWebSocketUrl(); ?>';
+
         // Elements
         const messageForm = document.getElementById('message-form');
         const messageInput = document.getElementById('message-input');
@@ -394,47 +398,54 @@ $homeLink = 'TaskerTemplate.php?id=' . intval($_SESSION['user_id']);
             function connectWebSocket() {
                 if (socket && socket.readyState !== WebSocket.CLOSED) return;
 
-                socket = new WebSocket('ws://localhost:8081');
+                console.log('Attempting to connect to WebSocket:', WEBSOCKET_URL);
 
-                socket.onopen = function() {
-                    console.log('WebSocket connected');
+                try {
+                    socket = new WebSocket(WEBSOCKET_URL);
 
-                    // Authenticate after connection
-                    socket.send(JSON.stringify({
-                        type: 'auth',
-                        user_id: <?php echo $current_user_id; ?>,
-                        conversation_id: conversationId
-                    }));
-                };
+                    socket.onopen = function() {
+                        console.log('WebSocket connected successfully');
 
-                socket.onmessage = function(event) {
-                    const data = JSON.parse(event.data);
+                        // Authenticate after connection
+                        socket.send(JSON.stringify({
+                            type: 'auth',
+                            user_id: <?php echo $current_user_id; ?>,
+                            conversation_id: conversationId
+                        }));
+                    };
 
-                    switch (data.type) {
-                        case 'auth_success':
-                            console.log('Authentication successful');
-                            break;
+                    socket.onmessage = function(event) {
+                        const data = JSON.parse(event.data);
 
-                        case 'message_history':
-                            // We already loaded the messages from PHP
-                            break;
+                        switch (data.type) {
+                            case 'auth_success':
+                                console.log('Authentication successful');
+                                break;
 
-                        case 'message':
-                            // New message received
-                            appendMessage(data);
-                            break;
-                    }
-                };
+                            case 'message_history':
+                                // We already loaded the messages from PHP
+                                break;
 
-                socket.onclose = function() {
-                    console.log('WebSocket disconnected');
-                    // Try to reconnect after 3 seconds
-                    setTimeout(connectWebSocket, 3000);
-                };
+                            case 'message':
+                                // New message received
+                                appendMessage(data);
+                                break;
+                        }
+                    };
 
-                socket.onerror = function(error) {
-                    console.error('WebSocket error:', error);
-                };
+                    socket.onclose = function(event) {
+                        console.log('WebSocket disconnected. Code:', event.code, 'Reason:', event.reason);
+                        // Try to reconnect after 3 seconds
+                        setTimeout(connectWebSocket, 3000);
+                    };
+
+                    socket.onerror = function(error) {
+                        console.error('WebSocket error:', error);
+                        console.error('Failed URL:', WEBSOCKET_URL);
+                    };
+                } catch (error) {
+                    console.error('Error creating WebSocket:', error);
+                }
             }
 
             // Add a message to the chat

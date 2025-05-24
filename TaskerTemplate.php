@@ -777,6 +777,9 @@ function timeAgo($datetime) {
 </script>
 
 <?php
+require_once 'websocket_config.php';
+
+
 if (isset($_SESSION['user_id']) && !$isOwner) {
     include('simple_chat.php');
 }

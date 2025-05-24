@@ -1,10 +1,15 @@
 <?php
-// Simple chat interface to be included in TaskerTemplate.php
+
+if (!isset($WEBSOCKET_URL)) {
+    require_once 'websocket_config.php';
+}
 
 // Only show chat for logged-in users who aren't viewing their own profile
 if (!isset($_SESSION['user_id']) || $isOwner) {
     return;
 }
+
+
 
 // Get user info for chat
 $current_user_id = $_SESSION['user_id'];
@@ -105,6 +110,9 @@ if ($db_connected) {
 <script>
     // Simple WebSocket chat implementation
     document.addEventListener('DOMContentLoaded', function() {
+        // Get WebSocket URL from PHP configuration
+        const WEBSOCKET_URL = '<?php echo getWebSocketUrl(); ?>';
+
         // Chat elements
         const chatModal = document.getElementById('chatModal');
         const chatMessages = document.getElementById('chat-messages');
@@ -123,69 +131,76 @@ if ($db_connected) {
         function connectWebSocket() {
             if (socket && socket.readyState !== WebSocket.CLOSED) return;
 
-            socket = new WebSocket('ws://localhost:8081');
+            console.log('Attempting to connect to WebSocket:', WEBSOCKET_URL);
 
-            socket.onopen = function() {
-                console.log('WebSocket connected');
+            try {
+                socket = new WebSocket(WEBSOCKET_URL);
 
-                // Authenticate after connection
-                socket.send(JSON.stringify({
-                    type: 'auth',
-                    user_id: currentUserId,
-                    conversation_id: conversationId
-                }));
-            };
+                socket.onopen = function() {
+                    console.log('WebSocket connected successfully');
 
-            socket.onmessage = function(event) {
-                const data = JSON.parse(event.data);
+                    // Authenticate after connection
+                    socket.send(JSON.stringify({
+                        type: 'auth',
+                        user_id: currentUserId,
+                        conversation_id: conversationId
+                    }));
+                };
 
-                switch (data.type) {
-                    case 'auth_success':
-                        // Authentication successful
-                        console.log('Authentication successful');
-                        break;
+                socket.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
 
-                    case 'message_history':
-                        // Load message history
-                        if (data.messages && data.messages.length) {
-                            chatMessages.innerHTML = '';
-                            data.messages.forEach(msg => {
-                                appendMessage(msg, false);
-                            });
-                            chatMessages.scrollTop = chatMessages.scrollHeight;
-                        }
-                        break;
+                    switch (data.type) {
+                        case 'auth_success':
+                            // Authentication successful
+                            console.log('Authentication successful');
+                            break;
 
-                    case 'message':
-                        // New message received
-                        appendMessage(data);
-                        break;
-
-                    case 'typing':
-                        // Typing indicator
-                        if (data.sender_id == recipientId) {
-                            if (data.is_typing) {
-                                typingIndicator.classList.remove('d-none');
-                            } else {
-                                typingIndicator.classList.add('d-none');
+                        case 'message_history':
+                            // Load message history
+                            if (data.messages && data.messages.length) {
+                                chatMessages.innerHTML = '';
+                                data.messages.forEach(msg => {
+                                    appendMessage(msg, false);
+                                });
+                                chatMessages.scrollTop = chatMessages.scrollHeight;
                             }
-                        }
-                        break;
-                }
-            };
+                            break;
 
-            socket.onclose = function() {
-                console.log('WebSocket disconnected');
-                // Try to reconnect after 3 seconds
-                setTimeout(connectWebSocket, 3000);
-            };
+                        case 'message':
+                            // New message received
+                            appendMessage(data);
+                            break;
 
-            socket.onerror = function(error) {
-                console.error('WebSocket error:', error);
-            };
+                        case 'typing':
+                            // Typing indicator
+                            if (data.sender_id == recipientId) {
+                                if (data.is_typing) {
+                                    typingIndicator.classList.remove('d-none');
+                                } else {
+                                    typingIndicator.classList.add('d-none');
+                                }
+                            }
+                            break;
+                    }
+                };
+
+                socket.onclose = function(event) {
+                    console.log('WebSocket disconnected. Code:', event.code, 'Reason:', event.reason);
+                    // Try to reconnect after 3 seconds
+                    setTimeout(connectWebSocket, 3000);
+                };
+
+                socket.onerror = function(error) {
+                    console.error('WebSocket error:', error);
+                    console.error('Failed URL:', WEBSOCKET_URL);
+                };
+            } catch (error) {
+                console.error('Error creating WebSocket:', error);
+            }
         }
 
-        // Add a message to the chat
+        // Rest of the functions remain the same...
         function appendMessage(data, scroll = true) {
             const isOutgoing = data.sender_id == currentUserId;
             const msgDiv = document.createElement('div');
@@ -197,9 +212,9 @@ if ($db_connected) {
             const timeStr = timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
             msgDiv.innerHTML = `
-      <div class="message-text">${data.message}</div>
-      <div class="message-time">${timeStr}</div>
-    `;
+                <div class="message-text">${data.message}</div>
+                <div class="message-time">${timeStr}</div>
+            `;
 
             chatMessages.appendChild(msgDiv);
 
