@@ -26,8 +26,6 @@ A web‑based platform that connects clients with skilled taskers in their area.
   Leave feedback once a task is done  
 - **Messaging System**  
   Real‑time chat (WebSocket‑powered via Ratchet)  
-- **User Profiles**  
-  Create/update your personal details  
 
 
 ### For Taskers 🔧👷‍♀️
