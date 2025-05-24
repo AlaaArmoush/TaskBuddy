@@ -3,8 +3,8 @@
 // Configuration for WebSocket connection with Cloudflare Tunnel
 
 // Your tunnel URLs
-define('APP_URL', 'https://coordinated-fair-birthday-su.trycloudflare.com');
-define('WEBSOCKET_TUNNEL_URL', 'https://schemes-ppm-medline-sector.trycloudflare.com');
+define('APP_URL', 'https://ghost-however-privacy-volumes.trycloudflare.com');
+define('WEBSOCKET_TUNNEL_URL', 'https://since-accepts-rachel-shut.trycloudflare.com');
 
 // Determine if we're running locally or through tunnel
 $is_localhost = isset($_SERVER['HTTP_HOST']) && in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1', '::1']);
@@ -16,7 +16,7 @@ if ($is_localhost && !$is_tunnel) {
     define('WEBSOCKET_URL', 'ws://localhost:8081');
 } else {
     // Through Cloudflare tunnel - use wss:// for secure WebSocket
-    define('WEBSOCKET_URL', 'wss://schemes-ppm-medline-sector.trycloudflare.com');
+    define('WEBSOCKET_URL', 'https://since-accepts-rachel-shut.trycloudflare.com/');
 }
 
 // Function to get WebSocket URL for JavaScript

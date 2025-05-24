@@ -210,7 +210,6 @@ section:nth-child(even) {
     border: 1px solid #8b6b4c;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 15px 30px rgba(90, 62, 32, 0.2);
 }
 
 .hero-section:before {
