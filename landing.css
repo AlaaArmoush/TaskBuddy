@@ -219,7 +219,6 @@ header {
     border: 1px solid #d9c5a9; /* Light brown/tan */
     position: relative;
     overflow: hidden;
-    box-shadow: 0 15px 30px rgba(90, 62, 32, 0.08); /* Subtle shadow */
 }
 
 .hero-section:before {
