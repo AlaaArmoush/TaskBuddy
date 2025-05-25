@@ -4,14 +4,16 @@ session_start();
 
 // Check if user is already logged in
 if (isset($_SESSION['user_id'])) {
-    // Redirect based on user type
-    if ($_SESSION['is_tasker']) {
+    if (!empty($_SESSION['is_admin'])) {
+        header("Location: admin_dashboard.php");
+    } elseif (!empty($_SESSION['is_tasker'])) {
         header("Location: TaskerTemplate.php?id=" . $_SESSION['user_id']);
     } else {
         header("Location: services.php");
     }
     exit();
 }
+
 
 // Initialize variables
 $email = "";
@@ -39,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             // Prepare query to get user by email
-            $stmt = $db->prepare("SELECT user_id, first_name, last_name, email, password, is_tasker FROM users WHERE email = ?");
+            $stmt = $db->prepare("SELECT user_id, first_name, last_name, email, password, is_tasker, is_admin FROM users WHERE email = ?");
             $stmt->bind_param("s", $email);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -55,13 +57,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['last_name'] = $user['last_name'];
                     $_SESSION['email'] = $user['email'];
                     $_SESSION['is_tasker'] = $user['is_tasker'];
+                    $_SESSION['is_admin'] = $user['is_admin'] ?? 0;
 
                     // Check if there's a redirect parameter
                     if (isset($_GET['redirect'])) {
                         header("Location: " . $_GET['redirect']);
                     } else {
                         // Default redirect based on user type
-                        if ($user['is_tasker']) {
+                        if ($user['is_admin'] == 1) {
+                            header("Location: admin_dashboard.php");
+                        } elseif ($user['is_tasker']) {
                             header("Location: TaskerTemplate.php?id=" . $user['user_id']);
                         } else {
                             header("Location: services.php");
