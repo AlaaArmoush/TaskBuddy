@@ -367,50 +367,61 @@ function timeAgo($datetime) {
 <section class="navigation-bar">
     <div class="container">
         <header class="d-flex flex-wrap justify-content-center py-3 mb-0">
-            <a href="<?php echo htmlspecialchars($homeLink, ENT_QUOTES, 'UTF-8'); ?>"
-               class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-                <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
-                <span class="fs-3">Task<span class="buddy">Buddy</span></span>
-            </a>
-            <ul class="nav nav-pills">
-                <?php if (!isset($_SESSION['user_id'])): ?>
-                    <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
-                    <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
-                    <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
-
-                <?php else: ?>
-                    <?php if (isset($_SESSION['is_tasker']) && $_SESSION['is_tasker'] == 1): ?>
-
-                        <li class="nav-item nav-notification">
-                            <a href="tasker_requests.php" class="nav-link">
-                                Requests
-                                <?php if ($notification_count > 0): ?>
-                                    <span class="badge rounded-pill bg-danger notification-badge">
-                            <?php echo $notification_count; ?>
-                        </span>
-                                <?php endif; ?>
-                            </a>
-                        </li>
-                        <li class="nav-item"><a href="TaskerTemplate.php?id=<?php echo h($_SESSION['user_id']); ?>" class="nav-link active">My Profile</a></li>
-
-                        <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
-                    <?php else: ?>
+            <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1): ?>
+                <a href="admin_dashboard.php" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                    <span class="fs-3">Task<span class="buddy">Buddy</span> Admin</span>
+                </a>
+                <ul class="nav nav-pills">
+                    <li class="nav-item"><a href="admin_dashboard.php" class="nav-link">Dashboard</a></li>
+                    <li class="nav-item"><a href="admin_users.php" class="nav-link">Users</a></li>
+                    <li class="nav-item"><a href="admin_categories.php" class="nav-link">Categories</a></li>
+                    <li class="nav-item"><a href="admin_bookings.php" class="nav-link">Bookings</a></li>
+                    <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
+                </ul>
+            <?php else: ?>
+                <a href="<?php echo htmlspecialchars($homeLink, ENT_QUOTES, 'UTF-8'); ?>"
+                   class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
+                    <span class="fs-3">Task<span class="buddy">Buddy</span></span>
+                </a>
+                <ul class="nav nav-pills">
+                    <?php if (!isset($_SESSION['user_id'])): ?>
                         <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
-                        <li class="nav-item">
-                            <a href="task_status.php" class="nav-link position-relative">
-                                Tasks Updates &amp; Status
-                            </a>
-                        </li>
-                        <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
+                        <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
+                        <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
+                    <?php else: ?>
+                        <?php if (isset($_SESSION['is_tasker']) && $_SESSION['is_tasker'] == 1): ?>
+                            <li class="nav-item nav-notification">
+                                <a href="tasker_requests.php" class="nav-link">
+                                    Requests
+                                    <?php if ($notification_count > 0): ?>
+                                        <span class="badge rounded-pill bg-danger notification-badge">
+                                            <?php echo $notification_count; ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </a>
+                            </li>
+                            <li class="nav-item"><a href="TaskerTemplate.php?id=<?php echo h($_SESSION['user_id']); ?>" class="nav-link active">My Profile</a></li>
+                            <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
+                        <?php else: ?>
+                            <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
+                            <li class="nav-item">
+                                <a href="task_status.php" class="nav-link position-relative">
+                                    Tasks Updates &amp; Status
+                                </a>
+                            </li>
+                            <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
+                        <?php endif; ?>
                     <?php endif; ?>
-                <?php endif; ?>
-            </ul>
+                </ul>
+            <?php endif; ?>
         </header>
     </div>
     <div class="border-container">
         <div class="border-line"></div>
     </div>
 </section>
+
 
 <?php if (!$db_connected): ?>
     <div class="container mt-5">
