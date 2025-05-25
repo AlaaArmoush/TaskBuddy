@@ -44,6 +44,20 @@ A web‑based platform that connects clients with skilled taskers in their area.
   Chat with clients via the integrated system  
 
 
+### For Admins 🛡️
+
+- **Dashboard Overview**  
+  See key stats: users, bookings, revenue, top-rated taskers  
+- **Category Management**  
+  Add, edit, and delete service categories with visual cards  
+- **User Management**  
+  Search/filter users, promote/demote admins, delete accounts  
+- **Booking Management**  
+  Filter bookings by status/date, update statuses, export to CSV  
+- **Analytics & Reports**  
+  Visual charts for booking trends and category distribution  
+
+
 ## 💻 Technologies Used
 
 - **Backend:** PHP 7.4+  
