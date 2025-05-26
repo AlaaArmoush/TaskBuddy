@@ -89,7 +89,7 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="services.css?v=1.2">
+    <link rel="stylesheet" href="services.css?v=1.5">
 
     <style>
         /* Animation Classes - Directly in HTML to ensure they load */
@@ -227,7 +227,7 @@ try {
         </div>
     </section>
 <?php else: ?>
-    <!-- Categories Section - Only show if database is connected -->
+    <!-- Categories Section - Only show categories with icons -->
     <section class="categories-section">
         <div class="container">
             <h2 class="text-center mb-4 animate-hidden">Explore by Category</h2>
@@ -247,15 +247,17 @@ try {
                         <p class="mt-1 small">All Services</p>
                     </button>
 
-                    <!-- Dynamic categories from database -->
+                    <!-- Dynamic categories from database - only show if icon_class is not empty -->
                     <?php if ($categoriesResult && $categoriesResult->num_rows > 0): ?>
                         <?php while($category = $categoriesResult->fetch_assoc()): ?>
-                            <button class="category-item text-center mx-2 animate-hidden" data-category="<?= h($category['name']) ?>">
-                                <div class="category-icon">
-                                    <i class="<?= h($category['icon_class']) ?>"></i>
-                                </div>
-                                <p class="mt-1 small"><?= h($category['name']) ?></p>
-                            </button>
+                            <?php if (!empty(trim($category['icon_class']))): ?>
+                                <button class="category-item text-center mx-2 animate-hidden" data-category="<?= h($category['name']) ?>">
+                                    <div class="category-icon">
+                                        <i class="<?= h($category['icon_class']) ?>"></i>
+                                    </div>
+                                    <p class="mt-1 small"><?= h($category['name']) ?></p>
+                                </button>
+                            <?php endif; ?>
                         <?php endwhile; ?>
                     <?php endif; ?>
                 </div>
@@ -264,10 +266,32 @@ try {
                     <i class="fas fa-chevron-right"></i>
                 </button>
             </div>
+
+            <!-- Search Bar -->
+            <div class="search-container mt-4 animate-hidden-bottom">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-6">
+                        <div class="search-wrapper position-relative">
+                            <input type="text"
+                                   id="taskerSearch"
+                                   class="form-control search-input"
+                                   placeholder="Search for services, taskers, or specific skills..."
+                                   autocomplete="off">
+                            <div class="search-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <button class="search-clear" id="clearSearch" style="display: none;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="search-suggestions" id="searchSuggestions"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Service/Tasker Cards Section -->
+    <!-- Service/Tasker Cards Section - Hide images for categories without feature_image -->
     <section id="tasker-cards" class="cards-section">
         <div class="container">
             <h2 class="text-center mb-5">Available Taskers</h2>
@@ -278,15 +302,17 @@ try {
                         <div class="tasker-card" data-service="<?= h($tasker['category_name']) ?>">
                             <a href="TaskerTemplate.php?id=<?= h($tasker['user_id']) ?>" class="card-link">
                                 <div class="card shadow-sm h-100">
-                                    <!-- Feature image comes from the category table -->
-                                    <img src="<?= h($tasker['feature_image']) ?>" alt="<?= h($tasker['category_name']) ?> Service" class="card-img-top">
-                                    <div class="card-body">
+                                    <!-- Only show feature image if it exists and is not empty -->
+                                    <?php if (!empty(trim($tasker['feature_image']))): ?>
+                                        <img src="<?= h($tasker['feature_image']) ?>" alt="<?= h($tasker['category_name']) ?> Service" class="card-img-top">
+                                    <?php endif; ?>
+
+                                    <div class="card-body <?= empty(trim($tasker['feature_image'])) ? 'no-image' : '' ?>">
                                         <div class="avatar-container">
                                             <img src="<?= h($tasker['profile_image']) ?>" class="avatar" alt="<?= h($tasker['first_name']) ?>'s Profile">
-                                        <div class="rating-badge">
-                                        	<i class="fas fa-star"></i> <?= h(number_format($tasker['average_rating'], 1)) ?>
-                                         	<?= $tasker['total_reviews'] == 0 ? 'Not Rated' : '<i class="fas fa-star"></i> ' . h(number_format($tasker['average_rating'], 1)) ?>
-                                        </div>
+                                            <div class="rating-badge">
+                                                <?= $tasker['total_reviews'] == 0 ? 'Not Rated' : '<i class="fas fa-star"></i> ' . h(number_format($tasker['average_rating'], 1)) ?>
+                                            </div>
                                         </div>
                                         <h5 class="card-title"><?= h($tasker['first_name']) ?> <?= h($tasker['last_name']) ?></h5>
                                         <div class="service-tag"><?= h($tasker['category_name']) ?></div>
@@ -309,9 +335,8 @@ try {
         </div>
 
         <div id="pagination-controls" class="text-center mt-4"></div>
-
-
     </section>
+
 <?php endif; ?>
 
 <!-- Footer -->
@@ -596,7 +621,284 @@ try {
             });
         }
     });
+
+
+    // Search functionality variables
+    let currentSearchTerm = '';
+    const searchInput = document.getElementById('taskerSearch');
+    const clearBtn = document.getElementById('clearSearch');
+    const suggestions = document.getElementById('searchSuggestions');
+
+    // SEARCH FUNCTIONALITY
+    function performSearch(searchTerm, category = 'all') {
+        searchTerm = searchTerm.toLowerCase().trim();
+        currentSearchTerm = searchTerm;
+
+        let matches = taskerCards;
+
+        // Filter by category first
+        if (category !== 'all') {
+            matches = matches.filter(card => card.dataset.service === category);
+        }
+
+        // Then filter by search term
+        if (searchTerm) {
+            matches = matches.filter(card => {
+                const name = card.querySelector('.card-title').textContent.toLowerCase();
+                const service = card.dataset.service.toLowerCase();
+                const description = card.querySelector('.card-text').textContent.toLowerCase();
+
+                return name.includes(searchTerm) ||
+                    service.includes(searchTerm) ||
+                    description.includes(searchTerm);
+            });
+        }
+
+        return matches;
+    }
+
+    // UPDATE THE EXISTING renderCards FUNCTION
+    function renderCards(category, searchTerm = '') {
+        const matches = performSearch(searchTerm, category);
+
+        // Hide all cards first
+        taskerCards.forEach(c => c.style.display = 'none');
+
+        // Remove existing "No results" message
+        const existingNoResults = document.querySelector('.no-results');
+        if (existingNoResults) existingNoResults.remove();
+
+        // Show "No results" message if no matches
+        if (matches.length === 0) {
+            const noResults = document.createElement('div');
+            noResults.className = 'no-results';
+            noResults.innerHTML = `
+            <i class="fas fa-search"></i>
+            <h4>No results found</h4>
+            <p>Try adjusting your search terms or browse all services</p>
+        `;
+            document.querySelector('.cards-container').appendChild(noResults);
+            paginationCtr.innerHTML = '';
+            return;
+        }
+
+        // Handle pagination for search results and "All" category
+        if (category === 'all' || searchTerm) {
+            const totalPages = Math.ceil(matches.length / TASKERS_PER_PAGE);
+            currentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+            const start = (currentPage - 1) * TASKERS_PER_PAGE;
+            matches.slice(start, start + TASKERS_PER_PAGE)
+                .forEach(c => c.style.display = 'block');
+
+            buildPagination(totalPages);
+        } else {
+            // Show all matches for specific categories
+            matches.forEach(c => c.style.display = 'block');
+            paginationCtr.innerHTML = '';
+        }
+
+        // Highlight search terms
+        if (searchTerm) {
+            highlightSearchTerms(matches, searchTerm);
+        } else {
+            removeHighlights();
+        }
+    }
+
+    // HIGHLIGHT SEARCH TERMS
+    function highlightSearchTerms(cards, searchTerm) {
+        cards.forEach(card => {
+            const title = card.querySelector('.card-title');
+            const service = card.querySelector('.service-tag');
+            const description = card.querySelector('.card-text');
+
+            [title, service, description].forEach(el => {
+                if (el && el.textContent.toLowerCase().includes(searchTerm)) {
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    el.innerHTML = el.textContent.replace(regex, '<span class="highlight">$1</span>');
+                }
+            });
+        });
+    }
+
+    // REMOVE HIGHLIGHTS
+    function removeHighlights() {
+        document.querySelectorAll('.highlight').forEach(el => {
+            el.outerHTML = el.textContent;
+        });
+    }
+
+    // SEARCH SUGGESTIONS
+    function showSuggestions(searchTerm) {
+        if (!searchTerm || searchTerm.length < 2) {
+            suggestions.style.display = 'none';
+            return;
+        }
+
+        const uniqueCategories = [...new Set(taskerCards.map(card => card.dataset.service))];
+        const matchingCategories = uniqueCategories.filter(cat =>
+            cat.toLowerCase().includes(searchTerm.toLowerCase())
+        ).slice(0, 5);
+
+        const matchingTaskers = taskerCards.filter(card => {
+            const name = card.querySelector('.card-title').textContent;
+            return name.toLowerCase().includes(searchTerm.toLowerCase());
+        }).slice(0, 3);
+
+        let html = '';
+
+        if (matchingCategories.length > 0) {
+            matchingCategories.forEach(cat => {
+                html += `<div class="search-suggestion" data-type="category" data-value="${cat}">
+                <div class="suggestion-category">Category</div>
+                <div>${cat}</div>
+            </div>`;
+            });
+        }
+
+        if (matchingTaskers.length > 0) {
+            matchingTaskers.forEach(card => {
+                const name = card.querySelector('.card-title').textContent;
+                const service = card.dataset.service;
+                html += `<div class="search-suggestion" data-type="tasker" data-value="${name}">
+                <div class="suggestion-category">Tasker</div>
+                <div>${name} - ${service}</div>
+            </div>`;
+            });
+        }
+
+        if (html) {
+            suggestions.innerHTML = html;
+            suggestions.style.display = 'block';
+
+            // Add click handlers for suggestions
+            suggestions.querySelectorAll('.search-suggestion').forEach(suggestion => {
+                suggestion.addEventListener('click', () => {
+                    const value = suggestion.dataset.value;
+                    searchInput.value = value;
+                    suggestions.style.display = 'none';
+                    handleSearch();
+                });
+            });
+        } else {
+            suggestions.style.display = 'none';
+        }
+    }
+
+    // SEARCH EVENT HANDLERS
+    function handleSearch() {
+        const searchTerm = searchInput.value.trim();
+        currentPage = 1;
+
+        if (searchTerm) {
+            clearBtn.style.display = 'block';
+            // Reset category to "All" when searching
+            categoryItems.forEach(item => item.classList.remove('active'));
+            document.querySelector('.category-item[data-category="all"]').classList.add('active');
+            renderCards('all', searchTerm);
+        } else {
+            clearBtn.style.display = 'none';
+            const activeCategory = document.querySelector('.category-item.active').dataset.category;
+            renderCards(activeCategory);
+        }
+
+        suggestions.style.display = 'none';
+    }
+
+    // INITIALIZE SEARCH EVENT LISTENERS
+    document.addEventListener('DOMContentLoaded', function() {
+        if (searchInput) {
+            let searchTimeout;
+
+            // Input event for suggestions
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    showSuggestions(e.target.value);
+                }, 300);
+            });
+
+            // Enter key to search
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSearch();
+                }
+            });
+
+            // Hide suggestions when input loses focus
+            searchInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    suggestions.style.display = 'none';
+                }, 200);
+            });
+        }
+
+        // Clear button functionality
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                clearBtn.style.display = 'none';
+                currentSearchTerm = '';
+                removeHighlights();
+                const activeCategory = document.querySelector('.category-item.active').dataset.category;
+                renderCards(activeCategory);
+            });
+        }
+    });
+
+    // UPDATE YOUR EXISTING CATEGORY CLICK HANDLER
+    // Replace your existing category click handler with this updated version:
+    categoryItems.forEach(item => {
+        item.addEventListener('click', function() {
+            categoryItems.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+
+            currentPage = 1;
+
+            // Clear search when selecting a category
+            if (searchInput && searchInput.value) {
+                searchInput.value = '';
+                clearBtn.style.display = 'none';
+                currentSearchTerm = '';
+                removeHighlights();
+            }
+
+            renderCards(this.getAttribute('data-category'));
+        });
+    });
+
+    // UPDATE YOUR buildPagination FUNCTION
+    // Replace the existing buildPagination function with this updated version:
+    function buildPagination(totalPages) {
+        paginationCtr.innerHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+            const link = document.createElement('a');
+            link.href = '#';
+            link.textContent = i;
+            link.style.margin = '0 6px';
+            link.style.textDecoration = 'none';
+            link.style.color = (i === currentPage) ? '#333' : '#888';
+            link.style.fontWeight = (i === currentPage) ? 'bold' : 'normal';
+
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                if (currentPage === i) return;
+                currentPage = i;
+                const activeCat = document.querySelector('.category-item.active')
+                    .getAttribute('data-category');
+                renderCards(activeCat, currentSearchTerm); // Pass search term here
+                document.getElementById('tasker-cards')
+                    .scrollIntoView({ behavior: 'smooth' });
+            });
+
+            paginationCtr.appendChild(link);
+        }
+    }
 </script>
+
+
 
 </body>
 </html>

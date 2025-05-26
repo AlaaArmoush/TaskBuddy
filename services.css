@@ -825,3 +825,168 @@ footer .border-top {
     gap: 2rem;
     margin: 0 auto;
 }
+
+.card-body.no-image {
+    padding-top: 1.5rem;
+}
+
+.tasker-card .card {
+    min-height: 320px; /* Ensure consistent card heights */
+}
+
+.tasker-card .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.tasker-card .card-body.no-image {
+    /* Add a subtle border or background to distinguish cards without images */
+    border-top: 3px solid #007bff;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+/* Search Bar Styles */
+.search-container {
+    margin-bottom: 2rem;
+    position: relative; /* Establish positioning context */
+    z-index: 100; /* Higher than other sections */
+}
+
+.search-wrapper {
+    position: relative;
+    z-index: 101; /* Higher than parent */
+}
+
+.search-input {
+    padding: 15px 50px 15px 45px;
+    border-radius: 50px;
+    border: 2px solid #e9ecef;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 102;
+}
+
+.search-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 4px 20px rgba(0,123,255,0.3);
+    outline: none;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 18px;
+    pointer-events: none;
+    z-index: 103;
+}
+
+.search-clear {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6c757d;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    z-index: 103;
+}
+
+.search-clear:hover {
+    background-color: #f8f9fa;
+    color: #dc3545;
+}
+
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    z-index: 9999; /* Very high z-index to ensure it's always on top */
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+    margin-top: 5px; /* Small gap from input */
+}
+
+/* Ensure suggestions appear above everything */
+.search-suggestions::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.search-suggestion {
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid #f8f9fa;
+    transition: background-color 0.2s ease;
+    position: relative;
+    z-index: 10000;
+}
+
+.search-suggestion:hover {
+    background-color: #f8f9fa;
+}
+
+.search-suggestion:last-child {
+    border-bottom: none;
+}
+
+.suggestion-category {
+    font-size: 12px;
+    color: #6c757d;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* Ensure the cards section doesn't interfere */
+.cards-section {
+    position: relative;
+    z-index: 1;
+}
+
+/* Categories section positioning */
+.categories-section {
+    position: relative;
+    z-index: 2;
+}
+
+.no-results {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.no-results i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Highlight search terms */
+.highlight {
+    background-color: #fff3cd;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+}

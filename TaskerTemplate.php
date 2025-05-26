@@ -81,22 +81,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
             if (isset($_POST['update_profile'])) {
                 $bio = $_POST['bio'] ?? '';
                 $hourly_rate = floatval($_POST['hourly_rate'] ?? 0);
-                $category_id = intval($_POST['category_id'] ?? 1);
                 $service_description = $_POST['service_description'] ?? '';
                 $location = $_POST['location'] ?? 'Nablus, Palestine';
 
-                // Update the tasker record
-                $updateStmt = $db->prepare("UPDATE taskers SET bio = ?, hourly_rate = ?, category_id = ?, service_description = ?, location = ? WHERE user_id = ?");
-                $updateStmt->bind_param("sdissi", $bio, $hourly_rate, $category_id, $service_description, $location, $user_id);
-                $result = $updateStmt->execute();
+                // Handle category selection
+                $category_id = null;
 
-                if ($result) {
-                    $success_message = "Profile updated successfully!";
-                    // Don't redirect yet, we may need to process file uploads
+                if ($_POST['category_id'] === 'other') {
+                    // User wants to create a custom category
+                    $custom_category = trim($_POST['custom_category'] ?? '');
+
+                    if (empty($custom_category)) {
+                        $error_message = "Please specify a custom category name.";
+                    } else {
+                        // Check if this custom category already exists (case-insensitive)
+                        $check_category = $db->prepare("SELECT category_id FROM categories WHERE LOWER(name) = LOWER(?)");
+                        $check_category->bind_param("s", $custom_category);
+                        $check_category->execute();
+                        $result = $check_category->get_result();
+
+                        if ($result && $result->num_rows > 0) {
+                            // Category already exists, use the existing ID
+                            $category_data = $result->fetch_assoc();
+                            $category_id = intval($category_data['category_id']);
+                            $success_message = "Profile updated! Note: The category '$custom_category' already existed, so we used the existing one.";
+                        } else {
+                            // Create new category - use empty strings for icon/image since user doesn't want them
+                            $insert_category = $db->prepare("INSERT INTO categories (name, icon_class, feature_image, display_order) VALUES (?, ?, ?, ?)");
+                            $empty_icon = ""; // Empty icon for custom categories
+                            $empty_image = ""; // Empty image for custom categories
+                            $default_order = 999; // Put custom categories at the end
+                            $insert_category->bind_param("sssi", $custom_category, $empty_icon, $empty_image, $default_order);
+
+                            if ($insert_category->execute()) {
+                                $category_id = intval($db->insert_id);
+                                $success_message = "Profile updated successfully! New category '$custom_category' has been created.";
+                            } else {
+                                $error_message = "Failed to create custom category: " . $db->error;
+                            }
+                        }
+                    }
                 } else {
-                    $error_message = "Failed to update profile: " . $db->error;
+                    // User selected an existing category from dropdown
+                    $category_id = intval($_POST['category_id']);
+                    $success_message = "Profile updated successfully!";
+                }
+
+                // Now update the tasker profile if we have a valid category_id
+                if ($category_id && empty($error_message)) {
+                    $updateStmt = $db->prepare("UPDATE taskers SET bio = ?, hourly_rate = ?, category_id = ?, service_description = ?, location = ? WHERE user_id = ?");
+                    $updateStmt->bind_param("sdissi", $bio, $hourly_rate, $category_id, $service_description, $location, $user_id);
+
+                    if ($updateStmt->execute()) {
+                        // Success message already set above based on category handling
+                    } else {
+                        $error_message = "Failed to update profile: " . $db->error;
+                        $success_message = ''; // Clear success message on error
+                    }
+                } elseif (empty($error_message)) {
+                    $error_message = "Please select a valid category.";
                 }
             }
+
 
             // Profile image upload
             if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0) {
@@ -359,7 +405,7 @@ function timeAgo($datetime) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="TaskerTemplate.css" rel="stylesheet">
+    <link href="TaskerTemplate.css?v=1" rel="stylesheet">
 
 </head>
 <body>
@@ -488,13 +534,22 @@ function timeAgo($datetime) {
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="category" class="form-label">Service Category</label>
-                                <select name="category_id" id="category" class="form-control">
+                                <select name="category_id" id="category" class="form-control" onchange="toggleCustomCategory()">
                                     <?php foreach ($categories as $category): ?>
                                         <option value="<?php echo h($category['category_id']); ?>" <?php echo ($category['category_id'] == $tasker_data['category_id']) ? 'selected' : ''; ?>>
                                             <?php echo h($category['name']); ?>
                                         </option>
                                     <?php endforeach; ?>
+                                    <option value="other">Other (Specify below)</option>
                                 </select>
+
+                                <!-- Custom Category Input - Hidden by default -->
+                                <div id="customCategoryDiv" style="display: none; margin-top: 10px;">
+                                    <label for="customCategory" class="form-label">Custom Category</label>
+                                    <input type="text" name="custom_category" id="customCategory" class="form-control"
+                                           placeholder="Enter your service category" maxlength="100">
+                                    <small class="form-text text-muted">Please specify your service category (e.g., "Pet Grooming", "Garden Design", etc.)</small>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -785,6 +840,30 @@ function timeAgo($datetime) {
         const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
         imageModal.show();
     }
+</script>
+
+<script>
+    // JavaScript function to show/hide custom category input
+    function toggleCustomCategory() {
+        const categorySelect = document.getElementById('category');
+        const customCategoryDiv = document.getElementById('customCategoryDiv');
+        const customCategoryInput = document.getElementById('customCategory');
+
+        if (categorySelect.value === 'other') {
+            customCategoryDiv.style.display = 'block';
+            customCategoryInput.required = true;
+            customCategoryInput.focus(); // Focus on the input for better UX
+        } else {
+            customCategoryDiv.style.display = 'none';
+            customCategoryInput.required = false;
+            customCategoryInput.value = ''; // Clear the input when hidden
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleCustomCategory();
+    });
 </script>
 
 <?php
