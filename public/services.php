@@ -7,7 +7,7 @@ $taskersResult = null;
 session_start();
 
 // Include notification helper
-require_once 'notifications_helper.php';
+require_once __DIR__ . '/../app/helpers/notifications_helper.php';
 
 // Initialize notification counter
 $notification_count = 0;
@@ -89,7 +89,7 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="services.css?v=1.5">
+    <link rel="stylesheet" href="/css/services.css?v=1.6">
 
     <style>
         /* Animation Classes - Directly in HTML to ensure they load */
@@ -161,11 +161,11 @@ try {
             </a>
 
             <ul class="nav nav-pills">
-                <li class="nav-item"><a href="services.php" class="nav-link active">Services</a></li>
+                <li class="nav-item"><a href="public/services.php" class="nav-link active">Services</a></li>
                 <?php if (!isset($_SESSION['user_id'])): ?>
-                    <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
-                    <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
-                    <li class="nav-item"><a href="BecomeATasker.html" class="nav-link">Become a Tasker</a></li>
+                    <li class="nav-item"><a href="public/signUp.php" class="nav-link">Sign Up</a></li>
+                    <li class="nav-item"><a href="public/signIn.php" class="nav-link">Sign In</a></li>
+                    <li class="nav-item"><a href="public/BecomeATasker.html" class="nav-link">Become a Tasker</a></li>
                 <?php else: ?>
                     <a href="task_status.php" class="nav-link position-relative">
                         Tasks Updates & Status
@@ -198,7 +198,7 @@ try {
                 </div>
             </div>
             <div class="col-md-6 order-md-1 animate-hidden">
-                <img src="./images/services_main.jpg" alt="Services Hero Image" class="img-fluid hero-image">
+                <img src="../images/services_main.jpg" alt="Services Hero Image" class="img-fluid hero-image">
             </div>
         </div>
     </div>
@@ -546,7 +546,7 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
         crossorigin="anonymous"></script>
-<script src="sharedScripts.js"></script>
+<script src="/js/sharedScripts.js"></script>
 
 <!-- Animation script using Intersection Observer -->
 <script>

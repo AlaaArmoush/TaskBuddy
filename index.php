@@ -40,10 +40,12 @@ try {
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="landing.css?v=1.2">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskBuddy</title>
+    <base href="/" />
+    <link rel="stylesheet" href="css/landing.css" />
+    <script src="js/sharedScripts.js"></script>
 
     <style>
         /* Animation Classes - Directly in HTML to ensure they load */
@@ -111,7 +113,7 @@ try {
             </a>
 
             <ul class="nav nav-pills">
-                <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
+                <li class="nav-item"><a href="public/services.php" class="nav-link">Services</a></li>
 
                 <?php if ($isLoggedIn): ?>
                     <li class="nav-item">
@@ -128,9 +130,9 @@ try {
                     <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
                 <?php else: ?>
                     <!-- Show these links when user is NOT logged in -->
-                    <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
-                    <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
-                    <li class="nav-item"><a href="BecomeATasker.html" class="nav-link" aria-current="page">Become a Tasker</a></li>
+                    <li class="nav-item"><a href="public/signUp.php" class="nav-link">Sign Up</a></li>
+                    <li class="nav-item"><a href="public/signIn.php" class="nav-link">Sign In</a></li>
+                    <li class="nav-item"><a href="public/BecomeATasker.html" class="nav-link" aria-current="page">Become a Tasker</a></li>
                 <?php endif; ?>
             </ul>
         </header>
@@ -146,11 +148,11 @@ try {
             <div class="col-md-6 animate-hidden">
                 <h1 class="hero-title">Help Is Just a Click Away.</h1>
                 <p class="hero-description">Book reliable taskers for everything you need, from home projects to personal errands. Get it done quickly and professionally.</p>
-                <a href="services.php" class="btn btn-primary btn-lg">Book a Tasker</a>
-                <a href="BecomeATasker.html" class="btn btn-primary btn-lg">Become a Tasker</a>
+                <a href="public/services.php" class="btn btn-primary btn-lg">Book a Tasker</a>
+                <a href="public/BecomeATasker.html" class="btn btn-primary btn-lg">Become a Tasker</a>
             </div>
             <div class="col-md-6 animate-hidden-right">
-                <img src="./images/handyman-service-scaled.jpg" alt="Hero Image" class="img-fluid hero-image">
+                <img src="../images/handyman-service-scaled.jpg" alt="Hero Image" class="img-fluid hero-image">
             </div>
         </div>
     </div>
@@ -282,7 +284,7 @@ try {
                 <h2 class="mb-4 fw-bold">Ready to cross tasks off your list?</h2>
                 <p class="lead mb-4">Skilled taskers are just a few clicks away. Get started in minutes!</p>
 
-                <a href="services.php" class="btn btn-light btn-lg px-5 py-3 mt-4 fw-bold">
+                <a href="public/services.php" class="btn btn-light btn-lg px-5 py-3 mt-4 fw-bold">
                     Book a Tasker Now
                     <i class="fas fa-arrow-right ms-2"></i>
                 </a>
@@ -356,7 +358,7 @@ try {
                         </div>
                         <div>
                             <br>
-                            <a href="BecomeATasker.html" class="btn btn-primary btn-lg">Become a Tasker</a>
+                            <a href="public/BecomeATasker.html" class="btn btn-primary btn-lg">Become a Tasker</a>
                         </div>
                     </div>
                 </div>
@@ -463,7 +465,7 @@ try {
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
-<script src="sharedScripts.js"></script>
+<script src="js/sharedScripts.js"></script>
 
 <!-- Embedded animation JavaScript -->
 <script>

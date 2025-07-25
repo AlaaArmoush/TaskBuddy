@@ -3,7 +3,7 @@ session_start();
 
 // Check if user is logged in and is admin
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
-    header("Location: index.php");
+    header("Location: /signIn.php");
     exit();
 }
 
@@ -128,33 +128,45 @@ ORDER BY month
 }
 
 // Function to safely escape output
-function h($string) {
+function h($string)
+{
     return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
 }
 
 // Function to get status badge class
-function getStatusBadgeClass($status) {
+function getStatusBadgeClass($status)
+{
     switch ($status) {
-        case 'pending': return 'bg-warning text-dark';
-        case 'accepted': return 'bg-primary';
-        case 'completed': return 'bg-success';
-        case 'rejected': return 'bg-danger';
-        case 'cancelled': return 'bg-secondary';
-        default: return 'bg-secondary';
+        case 'pending':
+            return 'bg-warning text-dark';
+        case 'accepted':
+            return 'bg-primary';
+        case 'completed':
+            return 'bg-success';
+        case 'rejected':
+            return 'bg-danger';
+        case 'cancelled':
+            return 'bg-secondary';
+        default:
+            return 'bg-secondary';
     }
 }
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - TaskBuddy</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="landing.css">
+    <link rel="stylesheet" href="/css/landing.css">
     <style>
         .dashboard-container {
             max-width: 1400px;
@@ -166,7 +178,7 @@ function getStatusBadgeClass($status) {
             background: white;
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             border: 1px solid rgba(217, 197, 169, 0.2);
             margin-bottom: 20px;
@@ -200,7 +212,7 @@ function getStatusBadgeClass($status) {
             background: white;
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             margin-bottom: 30px;
             border: 1px solid rgba(217, 197, 169, 0.2);
         }
@@ -318,14 +330,20 @@ function getStatusBadgeClass($status) {
         }
     </style>
 </head>
+
 <body>
 
-<!-- Navigation Bar -->
-<section class="navigation-bar">
+    <!-- Navigation Bar -->
+    <section class="navigation-bar">
     <div class="container">
         <header class="d-flex flex-wrap justify-content-center py-3 mb-0">
             <a href="admin_dashboard.php" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-                <span class="fs-3">Task<span class="buddy">Buddy</span> Admin</span>
+                <span class="fs-3">
+                    Task<span class="buddy">Buddy</span> Admin
+                    <?php if (isset($_SESSION['first_name'])): ?>
+                        - <?php echo h($_SESSION['first_name']); ?>
+                    <?php endif; ?>
+                </span>
             </a>
             <ul class="nav nav-pills">
                 <li class="nav-item"><a href="admin_dashboard.php" class="nav-link active">Dashboard</a></li>
@@ -341,284 +359,288 @@ function getStatusBadgeClass($status) {
     </div>
 </section>
 
-<div class="dashboard-container">
-    <h2 class="text-center mb-4">Admin Dashboard</h2>
+    <div class="dashboard-container">
+        <h2 class="text-center mb-4">Admin Dashboard</h2>
 
-    <?php if (!$db_connected): ?>
-        <div class="alert alert-danger">Database connection failed. Please check your connection.</div>
-    <?php else: ?>
+        <?php if (!$db_connected): ?>
+            <div class="alert alert-danger">Database connection failed. Please check your connection.</div>
+        <?php else: ?>
 
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <a href="admin_categories.php" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>Add Category
-            </a>
-            <a href="admin_users.php" class="btn btn-secondary">
-                <i class="bi bi-people me-2"></i>Manage Users
-            </a>
-            <a href="admin_bookings.php" class="btn btn-light">
-                <i class="bi bi-calendar-check me-2"></i>View Bookings
-            </a>
-        </div>
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="admin_categories.php" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Add Category
+                </a>
+                <a href="admin_users.php" class="btn btn-secondary">
+                    <i class="bi bi-people me-2"></i>Manage Users
+                </a>
+                <a href="admin_bookings.php" class="btn btn-light">
+                    <i class="bi bi-calendar-check me-2"></i>View Bookings
+                </a>
+            </div>
 
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3><?php echo h($stats['total_users']); ?></h3>
-                            <p>Total Users</p>
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3><?php echo h($stats['total_users']); ?></h3>
+                                <p>Total Users</p>
+                            </div>
+                            <i class="bi bi-people-fill"></i>
                         </div>
-                        <i class="bi bi-people-fill"></i>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3><?php echo h($stats['total_taskers']); ?></h3>
-                            <p>Active Taskers</p>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3><?php echo h($stats['total_taskers']); ?></h3>
+                                <p>Active Taskers</p>
+                            </div>
+                            <i class="bi bi-person-badge-fill"></i>
                         </div>
-                        <i class="bi bi-person-badge-fill"></i>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3><?php echo h($stats['total_bookings']); ?></h3>
-                            <p>Total Bookings</p>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3><?php echo h($stats['total_bookings']); ?></h3>
+                                <p>Total Bookings</p>
+                            </div>
+                            <i class="bi bi-calendar-check-fill"></i>
                         </div>
-                        <i class="bi bi-calendar-check-fill"></i>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3>$<?php echo h($stats['estimated_revenue']); ?></h3>
-                            <p>Est. Revenue</p>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3>$<?php echo h($stats['estimated_revenue']); ?></h3>
+                                <p>Est. Revenue</p>
+                            </div>
+                            <i class="bi bi-currency-dollar"></i>
                         </div>
-                        <i class="bi bi-currency-dollar"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Additional Stats -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3><?php echo h($stats['completed_bookings']); ?></h3>
-                            <p>Completed Tasks</p>
-                        </div>
-                        <i class="bi bi-check-circle-fill"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3><?php echo h($stats['pending_bookings']); ?></h3>
-                            <p>Pending Tasks</p>
-                        </div>
-                        <i class="bi bi-clock-fill"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3><?php echo h($stats['total_categories']); ?></h3>
-                            <p>Categories</p>
-                        </div>
-                        <i class="bi bi-grid-fill"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3><?php echo h($stats['avg_rating']); ?> <i class="bi bi-star-fill" style="font-size: 1.5rem; color: #FF8035;"></i></h3>
-                            <p>Avg. Rating</p>
-                        </div>
-                        <i class="bi bi-star-half"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <!-- Recent Bookings -->
-            <div class="col-md-8">
-                <div class="section-card recent-bookings">
-                    <h4>Recent Bookings</h4>
-                    <div class="table-responsive">
-                        <table class="table dashboard-table">
-                            <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Client</th>
-                                <th>Tasker</th>
-                                <th>Status</th>
-                                <th>Amount</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php foreach($recent_bookings as $booking): ?>
-                                <tr>
-                                    <td><?php echo date('M j', strtotime($booking['booking_date'])); ?></td>
-                                    <td><?php echo h($booking['client_fname'] . ' ' . $booking['client_lname']); ?></td>
-                                    <td><?php echo h($booking['tasker_fname'] . ' ' . $booking['tasker_lname']); ?></td>
-                                    <td>
-                                            <span class="badge <?php echo getStatusBadgeClass($booking['status']); ?>">
-                                                <?php echo ucfirst($booking['status']); ?>
-                                            </span>
-                                    </td>
-                                    <td>$<?php echo h(number_format($booking['hourly_rate'] * 2, 2)); ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Top Taskers -->
-            <div class="col-md-4">
-                <div class="section-card">
-                    <h4>Top Rated Taskers</h4>
-                    <?php foreach($top_taskers as $tasker): ?>
-                        <div class="top-tasker-item">
-                            <img src="<?php echo h($tasker['profile_image']); ?>" alt="<?php echo h($tasker['first_name']); ?>">
-                            <div class="flex-grow-1">
-                                <div class="fw-bold"><?php echo h($tasker['first_name'] . ' ' . $tasker['last_name']); ?></div>
-                                <div class="text-muted small"><?php echo h($tasker['category_name']); ?></div>
-                                <div class="rating">
-                                    <i class="bi bi-star-fill"></i> <?php echo h($tasker['average_rating']); ?>
-                                    <span class="text-muted">(<?php echo h($tasker['total_reviews']); ?> reviews)</span>
+            <!-- Additional Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3><?php echo h($stats['completed_bookings']); ?></h3>
+                                <p>Completed Tasks</p>
+                            </div>
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3><?php echo h($stats['pending_bookings']); ?></h3>
+                                <p>Pending Tasks</p>
+                            </div>
+                            <i class="bi bi-clock-fill"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3><?php echo h($stats['total_categories']); ?></h3>
+                                <p>Categories</p>
+                            </div>
+                            <i class="bi bi-grid-fill"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3><?php echo h($stats['avg_rating']); ?> <i class="bi bi-star-fill"
+                                        style="font-size: 1.5rem; color: #FF8035;"></i></h3>
+                                <p>Avg. Rating</p>
+                            </div>
+                            <i class="bi bi-star-half"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Recent Bookings -->
+                <div class="col-md-8">
+                    <div class="section-card recent-bookings">
+                        <h4>Recent Bookings</h4>
+                        <div class="table-responsive">
+                            <table class="table dashboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Client</th>
+                                        <th>Tasker</th>
+                                        <th>Status</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($recent_bookings as $booking): ?>
+                                        <tr>
+                                            <td><?php echo date('M j', strtotime($booking['booking_date'])); ?></td>
+                                            <td><?php echo h($booking['client_fname'] . ' ' . $booking['client_lname']); ?></td>
+                                            <td><?php echo h($booking['tasker_fname'] . ' ' . $booking['tasker_lname']); ?></td>
+                                            <td>
+                                                <span class="badge <?php echo getStatusBadgeClass($booking['status']); ?>">
+                                                    <?php echo ucfirst($booking['status']); ?>
+                                                </span>
+                                            </td>
+                                            <td>$<?php echo h(number_format($booking['hourly_rate'] * 2, 2)); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Taskers -->
+                <div class="col-md-4">
+                    <div class="section-card">
+                        <h4>Top Rated Taskers</h4>
+                        <?php foreach ($top_taskers as $tasker): ?>
+                            <div class="top-tasker-item">
+                                <img src="<?php echo h($tasker['profile_image']); ?>"
+                                    alt="<?php echo h($tasker['first_name']); ?>">
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold"><?php echo h($tasker['first_name'] . ' ' . $tasker['last_name']); ?>
+                                    </div>
+                                    <div class="text-muted small"><?php echo h($tasker['category_name']); ?></div>
+                                    <div class="rating">
+                                        <i class="bi bi-star-fill"></i> <?php echo h($tasker['average_rating']); ?>
+                                        <span class="text-muted">(<?php echo h($tasker['total_reviews']); ?> reviews)</span>
+                                    </div>
                                 </div>
                             </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="section-card">
+                        <h4>Booking Trends</h4>
+                        <div class="chart-container">
+                            <canvas id="bookingChart"></canvas>
                         </div>
-                    <?php endforeach; ?>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Charts Section -->
-        <div class="row">
-            <div class="col-md-8">
-                <div class="section-card">
-                    <h4>Booking Trends</h4>
-                    <div class="chart-container">
-                        <canvas id="bookingChart"></canvas>
+                <div class="col-md-4">
+                    <div class="section-card">
+                        <h4>Category Distribution</h4>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="section-card">
-                    <h4>Category Distribution</h4>
-                    <div class="chart-container">
-                        <canvas id="categoryChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-    <?php endif; ?>
-</div>
+        <?php endif; ?>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Booking Trends Chart
-    const bookingCtx = document.getElementById('bookingChart').getContext('2d');
-    const bookingChart = new Chart(bookingCtx, {
-        type: 'line',
-        data: {
-            labels: <?php echo json_encode(array_column($revenue_data, 'month')); ?>,
-            datasets: [{
-                label: 'Total Bookings',
-                data: <?php echo json_encode(array_column($revenue_data, 'booking_count')); ?>,
-                borderColor: '#2D7C7C',
-                backgroundColor: 'rgba(45, 124, 124, 0.1)',
-                tension: 0.3
-            }, {
-                label: 'Completed',
-                data: <?php echo json_encode(array_column($revenue_data, 'completed_count')); ?>,
-                borderColor: '#5a3e20',
-                backgroundColor: 'rgba(90, 62, 32, 0.1)',
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: 2,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Booking Trends Chart
+        const bookingCtx = document.getElementById('bookingChart').getContext('2d');
+        const bookingChart = new Chart(bookingCtx, {
+            type: 'line',
+            data: {
+                labels: <?php echo json_encode(array_column($revenue_data, 'month')); ?>,
+                datasets: [{
+                    label: 'Total Bookings',
+                    data: <?php echo json_encode(array_column($revenue_data, 'booking_count')); ?>,
+                    borderColor: '#2D7C7C',
+                    backgroundColor: 'rgba(45, 124, 124, 0.1)',
+                    tension: 0.3
+                }, {
+                    label: 'Completed',
+                    data: <?php echo json_encode(array_column($revenue_data, 'completed_count')); ?>,
+                    borderColor: '#5a3e20',
+                    backgroundColor: 'rgba(90, 62, 32, 0.1)',
+                    tension: 0.3
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
-        }
-    });
+        });
 
-    // Category Distribution Chart
-    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-    const categoryChart = new Chart(categoryCtx, {
-        type: 'doughnut',
-        data: {
-            labels: <?php echo json_encode(array_column($category_data, 'name')); ?>,
-            datasets: [{
-                data: <?php echo json_encode(array_column($category_data, 'tasker_count')); ?>,
-                backgroundColor: [
-                    '#2D7C7C',
-                    '#5a3e20',
-                    '#FF8035',
-                    '#d9c5a9',
-                    '#48a3a3',
-                    '#8b6b4c',
-                    '#276e6e',
-                    '#3d9898',
-                    '#FF6B6B',
-                    '#4ECDC4',
-                    '#45B7D1',
-                    '#96CEB4',
-                    '#FFEAA7',
-                    '#DDA0DD',
-                    '#98D8C8',
-                    '#F7DC6F',
-                    '#BB8FCE',
-                    '#85C1E9',
-                    '#F8C471',
-                    '#82E0AA'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
+        // Category Distribution Chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        const categoryChart = new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: <?php echo json_encode(array_column($category_data, 'name')); ?>,
+                datasets: [{
+                    data: <?php echo json_encode(array_column($category_data, 'tasker_count')); ?>,
+                    backgroundColor: [
+                        '#2D7C7C',
+                        '#5a3e20',
+                        '#FF8035',
+                        '#d9c5a9',
+                        '#48a3a3',
+                        '#8b6b4c',
+                        '#276e6e',
+                        '#3d9898',
+                        '#FF6B6B',
+                        '#4ECDC4',
+                        '#45B7D1',
+                        '#96CEB4',
+                        '#FFEAA7',
+                        '#DDA0DD',
+                        '#98D8C8',
+                        '#F7DC6F',
+                        '#BB8FCE',
+                        '#85C1E9',
+                        '#F8C471',
+                        '#82E0AA'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
                 }
             }
-        }
-    });
-</script>
+        });
+    </script>
 </body>
+
 </html>

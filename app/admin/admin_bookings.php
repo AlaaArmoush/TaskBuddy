@@ -3,7 +3,7 @@ session_start();
 
 // Check if user is logged in and is admin
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
-    header("Location: index.php");
+    header("Location: /signIn.php");
     exit();
 }
 
@@ -152,7 +152,7 @@ function getStatusBadgeClass($status) {
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="landing.css">
+    <link rel="stylesheet" href="/css/landing.css">
     <style>
         .bookings-container {
             max-width: 1400px;

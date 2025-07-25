@@ -432,9 +432,9 @@ function timeAgo($datetime) {
                 </a>
                 <ul class="nav nav-pills">
                     <?php if (!isset($_SESSION['user_id'])): ?>
-                        <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
-                        <li class="nav-item"><a href="signUp.php" class="nav-link">Sign Up</a></li>
-                        <li class="nav-item"><a href="signIn.php" class="nav-link">Sign In</a></li>
+                        <li class="nav-item"><a href="public/services.php" class="nav-link">Services</a></li>
+                        <li class="nav-item"><a href="public/signUp.php" class="nav-link">Sign Up</a></li>
+                        <li class="nav-item"><a href="public/signIn.php" class="nav-link">Sign In</a></li>
                     <?php else: ?>
                         <?php if (isset($_SESSION['is_tasker']) && $_SESSION['is_tasker'] == 1): ?>
                             <li class="nav-item nav-notification">
@@ -450,7 +450,7 @@ function timeAgo($datetime) {
                             <li class="nav-item"><a href="TaskerTemplate.php?id=<?php echo h($_SESSION['user_id']); ?>" class="nav-link active">My Profile</a></li>
                             <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
                         <?php else: ?>
-                            <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
+                            <li class="nav-item"><a href="public/services.php" class="nav-link">Services</a></li>
                             <li class="nav-item">
                                 <a href="task_status.php" class="nav-link position-relative">
                                     Tasks Updates &amp; Status
@@ -664,7 +664,7 @@ function timeAgo($datetime) {
                             </button>
                         <?php else: ?>
                             <a href="signIn.php?redirect=TaskerTemplate.php?id=<?php echo h($tasker_id); ?>" class="btn btn-primary w-100 mb-3">Sign In to Book</a>
-                            <a href="signUp.php" class="btn btn-light w-100">Sign Up</a>
+                            <a href="public/signUp.php" class="btn btn-light w-100">Sign Up</a>
                         <?php endif; ?>
                     </div>
 

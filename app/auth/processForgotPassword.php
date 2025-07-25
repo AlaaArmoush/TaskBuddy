@@ -140,7 +140,7 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="signIn.css">
+    <link rel="stylesheet" href="css/signIn.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -194,7 +194,7 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
                     </div>
 
                     <div class="text-center mt-4">
-                        <a href="signIn.php" class="btn btn-primary">Return to Sign In</a>
+                        <a href="public/signIn.php" class="btn btn-primary">Return to Sign In</a>
                     </div>
                 <?php endif; ?>
             </div>

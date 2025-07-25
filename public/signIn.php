@@ -5,11 +5,11 @@ session_start();
 // Check if user is already logged in
 if (isset($_SESSION['user_id'])) {
     if (!empty($_SESSION['is_admin'])) {
-        header("Location: admin_dashboard.php");
+        header("Location: /admin/admin_dashboard.php");
     } elseif (!empty($_SESSION['is_tasker'])) {
-        header("Location: TaskerTemplate.php?id=" . $_SESSION['user_id']);
+        header("Location: /templates/TaskerTemplate.php?id=" . $_SESSION['user_id']);
     } else {
-        header("Location: services.php");
+        header("Location: /services.php");
     }
     exit();
 }
@@ -26,8 +26,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $formSubmitted = true;
 
     // Validate form data
-    if (isset($_POST['userEmail']) && isset($_POST['userPass']) &&
-        !empty($_POST['userEmail']) && !empty($_POST['userPass'])) {
+    if (
+        isset($_POST['userEmail']) && isset($_POST['userPass']) &&
+        !empty($_POST['userEmail']) && !empty($_POST['userPass'])
+    ) {
 
         $email = $_POST['userEmail'];
         $password = $_POST['userPass'];
@@ -61,15 +63,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     // Check if there's a redirect parameter
                     if (isset($_GET['redirect'])) {
-                        header("Location: " . $_GET['redirect']);
+                        header("Location: /" . ltrim($_GET['redirect'], '/'));
                     } else {
                         // Default redirect based on user type
                         if ($user['is_admin'] == 1) {
-                            header("Location: admin_dashboard.php");
+                            header("Location: /admin/admin_dashboard.php");
                         } elseif ($user['is_tasker']) {
-                            header("Location: TaskerTemplate.php?id=" . $user['user_id']);
+                            header("Location: /templates/TaskerTemplate.php?id=" . $user['user_id']);
                         } else {
-                            header("Location: services.php");
+                            header("Location: /services.php");
                         }
                     }
                     exit();
@@ -94,86 +96,98 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="signIn.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/signIn.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <title>Sign In - TaskBuddy</title>
 </head>
+
 <body>
-<div class="row vh-100 g-0">
-    <div class="col-lg-12">
-        <div class="row align-items-center justify-content-center h-100 g-0 px-4 ps-sm-0 ">
-            <div class="col col-sm-6 col-lg-7 col-xl-6">
-                <a href="index.php" style="text-decoration: none;">
-                    <span class="fs-3 d-flex justify-content-center mb-4">Task<span class="buddy">Buddy</span></span>
-                </a>
-                <div class="text-center mb-5">
-                    <h3 class="fw-bold">Sign In</h3>
-                </div>
-
-                <?php if(!empty($errorMessage)): ?>
-                    <div class="alert alert-danger" role="alert">
-                        <?php echo htmlspecialchars($errorMessage); ?>
+    <div class="row vh-100 g-0">
+        <div class="col-lg-12">
+            <div class="row align-items-center justify-content-center h-100 g-0 px-4 ps-sm-0 ">
+                <div class="col col-sm-6 col-lg-7 col-xl-6">
+                    <a href="index.php" style="text-decoration: none;">
+                        <span class="fs-3 d-flex justify-content-center mb-4">Task<span
+                                class="buddy">Buddy</span></span>
+                    </a>
+                    <div class="text-center mb-5">
+                        <h3 class="fw-bold">Sign In</h3>
                     </div>
-                <?php endif; ?>
 
-                <div class="position-relative">
-                    <hr class="text-secondary">
-                </div>
+                    <?php if (!empty($errorMessage)): ?>
+                        <div class="alert alert-danger" role="alert">
+                            <?php echo htmlspecialchars($errorMessage); ?>
+                        </div>
+                    <?php endif; ?>
 
-                <!--form-->
-                <form action="signIn.php" method="post">
-                    <div class="input-group mb-3">
+                    <div class="position-relative">
+                        <hr class="text-secondary">
+                    </div>
+
+                    <!--form-->
+                    <form action="signIn.php" method="post">
+                        <div class="input-group mb-3">
                             <span class="input-group-text">
                                 <i class="bx bx-envelope"></i>
                             </span>
-                        <input type="email" name="userEmail" class="form-control form-control-lg fs-6" placeholder="Email Address" required
-                               value="<?php echo $formSubmitted ? htmlspecialchars($email) : ''; ?>">
-                    </div>
+                            <input type="email" name="userEmail" class="form-control form-control-lg fs-6"
+                                placeholder="Email Address" required
+                                value="<?php echo $formSubmitted ? htmlspecialchars($email) : ''; ?>">
+                        </div>
 
-                    <div class="input-group mb-3">
+                        <div class="input-group mb-3">
                             <span class="input-group-text">
                                 <i class="bx bx-lock"></i>
                             </span>
-                        <input type="password" id="passwordInput" name="userPass" class="form-control form-control-lg fs-6" placeholder="Password" required>
-                    </div>
-
-
-
-                    <div class="input-group mb-3 d-flex justify-content-between">
-                        <div class="form-check mb-3">
-                            <input type="checkbox" class="form-check-input" id="showPassword" onclick="togglePassword()">
-                            <label class="form-check-label" for="showPassword">
-                                Show Password
-                            </label>
+                            <input type="password" id="passwordInput" name="userPass"
+                                class="form-control form-control-lg fs-6" placeholder="Password" required>
                         </div>
 
-                        <div>
-                            <small><a href="forgotPassword.php">Forgot Password?</a></small>
+
+
+                        <div class="input-group mb-3 d-flex justify-content-between">
+                            <div class="form-check mb-3">
+                                <input type="checkbox" class="form-check-input" id="showPassword"
+                                    onclick="togglePassword()">
+                                <label class="form-check-label" for="showPassword">
+                                    Show Password
+                                </label>
+                            </div>
+
+                            <div>
+                                <small><a href="forgotPassword.php">Forgot Password?</a></small>
+                            </div>
                         </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Sign In</button>
+                    </form>
+                    <!--form-->
+
+                    <div class="text-center mt-3">
+                        <small>Don't have an account? <a href="public/signUp.php">Sign Up</a></small>
                     </div>
-
-                    <button type="submit" class="btn btn-primary btn-lg w-100">Sign In</button>
-                </form>
-                <!--form-->
-
-                <div class="text-center mt-3">
-                    <small>Don't have an account? <a href="signUp.php">Sign Up</a></small>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<script>
-    function togglePassword() {
-        const passwordInput = document.getElementById("passwordInput");
-        passwordInput.type = passwordInput.type === "password" ? "text" : "password";
-    }
-</script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById("passwordInput");
+            passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+        crossorigin="anonymous"></script>
 </body>
+
 </html>

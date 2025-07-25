@@ -294,7 +294,7 @@ function getStatusDisplayText($status) {
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="landing.css">
+    <link rel="stylesheet" href="css/landing.css">
     <style>
         .tasks-container {
             max-width: 1000px;
@@ -566,7 +566,7 @@ function getStatusDisplayText($status) {
 
 
             <ul class="nav nav-pills">
-                <li class="nav-item"><a href="services.php" class="nav-link">Services</a></li>
+                <li class="nav-item"><a href="public/services.php" class="nav-link">Services</a></li>
                 <li class="nav-item"><a href="task_status.php" class="nav-link active">Tasks Updates & Status</a></li>
                 <li class="nav-item"><a href="logout.php" class="nav-link">Sign Out</a></li>
             </ul>
@@ -657,7 +657,7 @@ function getStatusDisplayText($status) {
                 <i class="bi bi-clipboard-check"></i>
                 <h4>No tasks yet</h4>
                 <p>You haven't booked any tasks yet. Browse services to find a tasker.</p>
-                <a href="services.php" class="btn btn-primary mt-3">Browse Services</a>
+                <a href="public/services.php" class="btn btn-primary mt-3">Browse Services</a>
             </div>
         <?php endif; ?>
     <?php endif; ?>
@@ -774,6 +774,6 @@ function getStatusDisplayText($status) {
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
-<script src="sharedScripts.js"></script>
+<script src="js/sharedScripts.js"></script>
 </body>
 </html>
