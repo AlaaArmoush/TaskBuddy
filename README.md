@@ -2,6 +2,10 @@
 
 A web‑based platform that connects clients with skilled taskers in their area. Book services, chat with providers, and manage task requests all in one place.
 
+### 📄 Documentation
+
+For a complete breakdown of the system, including all features, architecture, and GUI design: [TaskBuddy Report.docx](https://github.com/user-attachments/files/21435340/TaskBuddy.Report.docx)
+
 
 ## 📝 Overview
 
